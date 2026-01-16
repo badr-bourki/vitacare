@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VitaCare – Product Details</title>
+  <title>VitaCare – My Account</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
@@ -24,7 +24,7 @@
       </ul>
 
       <div class="flex items-center space-x-4">
-        <a href="login.html" class="text-sm font-medium hover:text-green-600">Login</a>
+        <a href="login.html" class="text-sm font-medium hover:text-green-600">Logout</a>
         <a href="cart.html" class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition">
           Cart
         </a>
@@ -33,20 +33,24 @@
   </nav>
 
   <main class="pt-28 pb-16">
-    <div class="max-w-7xl mx-auto px-6">
+    <div class="max-w-6xl mx-auto px-6">
+      <h1 class="text-3xl font-bold mb-6">My Account</h1>
 
-      <!-- Back -->
-      <a href="products.html" class="text-green-600 font-medium hover:underline">← Back to products</a>
+      <!-- User Info -->
+      <section class="bg-white border rounded-2xl p-6 mb-8">
+        <h2 class="text-xl font-semibold">Personal Information</h2>
+        <div id="userInfo" class="mt-4 space-y-4"></div>
+      </section>
 
-      <!-- Details -->
-      <div id="details" class="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-10"></div>
-
+      <!-- Order History -->
+      <section class="bg-white border rounded-2xl p-6">
+        <h2 class="text-xl font-semibold">Order History</h2>
+        <div id="orderHistory" class="mt-4"></div>
+        <p id="emptyOrders" class="text-gray-600 hidden">You have no orders yet.</p>
+      </section>
     </div>
   </main>
 
-  <!-- scripts -->
-  <script src="../js/data/products.js"></script>
-  <script src="../js/utils/cartStorage.js"></script>
-  <script src="../js/pages/productDetails.js"></script>
+  <script src="../js/pages/account.js"></script>
 </body>
 </html>

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VitaCare – About Us</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- NAVBAR -->
+  <nav class="bg-white/90 backdrop-blur shadow-md fixed w-full z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="index.html" class="text-2xl font-bold text-green-600">
+        Vita<span class="text-gray-900">Care</span>
+      </a>
+
+      <ul class="hidden md:flex space-x-8 font-medium">
+        <li><a href="index.html" class="hover:text-green-600">Home</a></li>
+        <li><a href="products.html" class="hover:text-green-600">Products</a></li>
+        <li><a href="about.html" class="text-green-600 font-semibold">About</a></li>
+        <li><a href="contact.html" class="hover:text-green-600">Contact</a></li>
+      </ul>
+
+      <div class="flex items-center space-x-4">
+        <a href="login.html" class="text-sm font-medium hover:text-green-600">Login</a>
+        <a href="cart.html" class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition">
+          Cart
+        </a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ABOUT CONTENT -->
+  <main class="pt-32 pb-16">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <h1 class="text-4xl font-bold mb-6">About Us</h1>
+      <p class="text-lg text-gray-600 mb-8">
+        At VitaCare, we are dedicated to providing you with the best health, beauty, and wellness products. Our mission is to help you live a healthier and more vibrant life with nature’s finest ingredients.
+      </p>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div>
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">Our Mission</h2>
+          <p class="text-gray-600">
+            We strive to offer high-quality wellness and beauty products that are formulated with love, nature, and science. Our goal is to create positive change in people’s lives, helping them feel and look their best, naturally.
+          </p>
+        </div>
+        <div>
+          <h2 class="text-2xl font-semibold text-gray-800 mb-4">Our Vision</h2>
+          <p class="text-gray-600">
+            Our vision is to become a trusted global brand known for providing premium health, beauty, and skincare products. We are committed to sustainability, ethical sourcing, and supporting the well-being of our customers.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-gray-900 text-gray-200 py-8">
+    <div class="max-w-7xl mx-auto px-6 text-center text-sm text-gray-400">
+      © <span id="year"></span> VitaCare. All rights reserved.
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+
+</body>
+</html>
