@@ -3,107 +3,414 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Login to VitaCare - Access your account to shop natural health and beauty products">
+  <meta name="keywords" content="login, account, sign in, VitaCare">
   <title>VitaCare – Login</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-gradient-to-br from-gray-50 to-green-50 text-gray-800 min-h-screen">
 
   <!-- NAVBAR -->
-  <nav class="bg-white/90 backdrop-blur shadow-md fixed w-full z-50">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-      <a href="index.html" class="text-2xl font-bold text-green-600">
-        Vita<span class="text-gray-900">Care</span>
-      </a>
-
-      <ul class="hidden md:flex space-x-8 font-medium">
-        <li><a href="index.html" class="hover:text-green-600">Home</a></li>
-        <li><a href="products.html" class="hover:text-green-600">Products</a></li>
-        <li><a href="about.html" class="hover:text-green-600">About</a></li>
-        <li><a href="contact.html" class="hover:text-green-600">Contact</a></li>
-      </ul>
-
-      <div class="flex items-center space-x-4">
-        <a href="cart.html" class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition">
-          Cart
+  <nav class="bg-white/95 backdrop-blur-lg shadow-lg fixed w-full z-50 transition-all duration-300" id="navbar">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex items-center justify-between">
+        <!-- Logo -->
+        <a href="index.html" class="text-2xl font-bold text-green-600 hover:scale-105 transition-transform">
+          Vita<span class="text-gray-900">Care</span>
         </a>
+
+        <!-- Desktop Menu -->
+        <ul class="hidden md:flex space-x-8 font-medium">
+          <li><a href="index.html" class="hover:text-green-600 transition-colors">Home</a></li>
+          <li><a href="products.html" class="hover:text-green-600 transition-colors">Products</a></li>
+          <li><a href="about.html" class="hover:text-green-600 transition-colors">About</a></li>
+          <li><a href="contact.html" class="hover:text-green-600 transition-colors">Contact</a></li>
+        </ul>
+
+        <!-- CTA Buttons -->
+        <div class="hidden md:flex items-center space-x-4">
+          <a href="cart.html" class="bg-green-600 text-white px-5 py-2 rounded-full hover:bg-green-700 hover:shadow-lg transition-all duration-300 flex items-center">
+            <i class="fas fa-shopping-cart mr-2"></i>
+            Cart
+            <span class="bg-white text-green-600 rounded-full w-5 h-5 flex items-center justify-center text-xs ml-2 font-bold">0</span>
+          </a>
+        </div>
+
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden text-gray-800 text-2xl" id="menuToggle">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div class="md:hidden hidden mt-4 pb-4 space-y-3" id="mobileMenu">
+        <a href="index.html" class="block hover:text-green-600 transition-colors py-2">Home</a>
+        <a href="products.html" class="block hover:text-green-600 transition-colors py-2">Products</a>
+        <a href="about.html" class="block hover:text-green-600 transition-colors py-2">About</a>
+        <a href="contact.html" class="block hover:text-green-600 transition-colors py-2">Contact</a>
+        <div class="pt-3 border-t">
+          <a href="cart.html" class="block text-center py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Cart</a>
+        </div>
       </div>
     </div>
   </nav>
 
-  <main class="pt-28 pb-16">
-    <div class="max-w-6xl mx-auto px-6">
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+  <!-- MAIN CONTENT -->
+  <main class="pt-32 pb-16 min-h-screen flex items-center">
+    <div class="max-w-6xl mx-auto px-6 w-full">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
 
-        <!-- Left -->
-        <section class="bg-white border rounded-2xl p-8">
-          <h1 class="text-3xl font-bold">Welcome back</h1>
-          <p class="text-gray-600 mt-2">
-            Login to continue shopping and manage your orders.
-          </p>
+        <!-- LEFT SIDE - Login Form -->
+        <section class="bg-white rounded-3xl shadow-2xl p-8 md:p-10 animate-fadeIn">
+          <!-- Header -->
+          <div class="mb-8">
+            <h1 class="text-4xl font-bold text-gray-900">Welcome Back!</h1>
+            <p class="text-gray-600 mt-3 text-lg">
+              Login to continue shopping and manage your orders.
+            </p>
+          </div>
 
-          <div class="mt-6 flex gap-2">
-            <button id="userTab" class="px-5 py-2 rounded-full bg-green-600 text-white font-medium">
-              User
+          <!-- Tab Switcher -->
+          <div class="flex gap-3 mb-8 p-1 bg-gray-100 rounded-full">
+            <button id="userTab" class="flex-1 px-6 py-3 rounded-full bg-green-600 text-white font-semibold transition-all duration-300 shadow-lg">
+              <i class="fas fa-user mr-2"></i>User Login
             </button>
-            <button id="adminTab" class="px-5 py-2 rounded-full border hover:bg-gray-50 font-medium">
-              Admin
+            <button id="adminTab" class="flex-1 px-6 py-3 rounded-full text-gray-600 font-semibold hover:bg-gray-200 transition-all duration-300">
+              <i class="fas fa-user-shield mr-2"></i>Admin Login
             </button>
           </div>
 
-          <!-- Form -->
-          <form id="loginForm" class="mt-6 space-y-4">
+          <!-- Login Form -->
+          <form id="loginForm" class="space-y-6">
+            <!-- Email Input -->
             <div>
-              <label class="text-sm font-medium">Email</label>
-              <input id="email" type="email" required
-                class="mt-1 w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-200" />
+              <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="fas fa-envelope text-green-600 mr-2"></i>Email Address
+              </label>
+              <input 
+                id="email" 
+                type="email" 
+                required
+                placeholder="Enter your email"
+                class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
+              />
             </div>
 
+            <!-- Password Input -->
             <div>
-              <label class="text-sm font-medium">Password</label>
-              <input id="password" type="password" required
-                class="mt-1 w-full border rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-200" />
+              <label for="password" class="block text-sm font-semibold text-gray-700 mb-2">
+                <i class="fas fa-lock text-green-600 mr-2"></i>Password
+              </label>
+              <div class="relative">
+                <input 
+                  id="password" 
+                  type="password" 
+                  required
+                  placeholder="Enter your password"
+                  class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
+                />
+                <button type="button" id="togglePassword" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-green-600 transition">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
             </div>
 
-            <p id="errorMsg" class="text-sm text-red-600 hidden"></p>
+            <!-- Remember Me & Forgot Password -->
+            <div class="flex items-center justify-between text-sm">
+              <label class="flex items-center cursor-pointer">
+                <input type="checkbox" class="w-4 h-4 text-green-600 rounded focus:ring-2 focus:ring-green-200 mr-2" />
+                <span class="text-gray-600">Remember me</span>
+              </label>
+              <a href="#" class="text-green-600 font-semibold hover:underline">Forgot Password?</a>
+            </div>
 
-            <button
-              class="w-full bg-green-600 text-white py-3 rounded-full font-medium hover:bg-green-700 transition">
-              Login
+            <!-- Error Message -->
+            <div id="errorMsg" class="hidden p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center">
+              <i class="fas fa-exclamation-circle mr-2"></i>
+              <span id="errorText"></span>
+            </div>
+
+            <!-- Success Message -->
+            <div id="successMsg" class="hidden p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl flex items-center">
+              <i class="fas fa-check-circle mr-2"></i>
+              <span id="successText">Login successful! Redirecting...</span>
+            </div>
+
+            <!-- Submit Button -->
+            <button 
+              type="submit"
+              class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-full font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center"
+            >
+              <i class="fas fa-sign-in-alt mr-2"></i>
+              Login to Account
             </button>
-
-            <p class="text-sm text-gray-600">
-              Demo accounts:
-              <span class="font-medium">user@vitacare.com / 123456</span> —
-              <span class="font-medium">admin@vitacare.com / admin123</span>
-            </p>
           </form>
+
+          <!-- Demo Credentials -->
+          <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+            <p class="text-sm font-semibold text-blue-900 mb-2">
+              <i class="fas fa-info-circle mr-2"></i>Demo Accounts:
+            </p>
+            <div class="space-y-1 text-sm text-blue-800">
+              <p><strong>User:</strong> user@vitacare.com / 123456</p>
+              <p><strong>Admin:</strong> admin@vitacare.com / admin123</p>
+            </div>
+          </div>
+
+          <!-- Sign Up Link -->
+          <div class="mt-6 text-center">
+            <p class="text-gray-600">
+              Don't have an account? 
+              <a href="#" class="text-green-600 font-semibold hover:underline">Sign up now</a>
+            </p>
+          </div>
+
+          <!-- Social Login -->
+          <div class="mt-8">
+            <div class="relative">
+              <div class="absolute inset-0 flex items-center">
+                <div class="w-full border-t border-gray-300"></div>
+              </div>
+              <div class="relative flex justify-center text-sm">
+                <span class="px-4 bg-white text-gray-500">Or continue with</span>
+              </div>
+            </div>
+
+            <div class="mt-6 grid grid-cols-3 gap-3">
+              <button class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all">
+                <i class="fab fa-google text-red-500 text-xl"></i>
+              </button>
+              <button class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all">
+                <i class="fab fa-facebook-f text-blue-600 text-xl"></i>
+              </button>
+              <button class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all">
+                <i class="fab fa-apple text-gray-800 text-xl"></i>
+              </button>
+            </div>
+          </div>
         </section>
 
-        <!-- Right -->
-        <section class="bg-gradient-to-br from-green-50 to-white border rounded-2xl p-8">
-          <h2 class="text-2xl font-bold">VitaCare</h2>
-          <p class="text-gray-600 mt-2">
-            Health • Beauty • Supplements
-          </p>
+        <!-- RIGHT SIDE - Info & Benefits -->
+        <section class="space-y-8 animate-slideIn">
+          <!-- Brand Info Card -->
+          <div class="bg-gradient-to-br from-green-600 to-emerald-600 text-white rounded-3xl p-8 md:p-10 shadow-2xl">
+            <div class="mb-6">
+              <h2 class="text-4xl font-bold mb-2">VitaCare</h2>
+              <p class="text-green-100 text-lg">Health • Beauty • Wellness</p>
+            </div>
 
-          <div class="mt-6 space-y-3 text-gray-700">
-            <p>✅ Quality guaranteed products</p>
-            <p>⚡ Fast delivery</p>
-            <p>💬 24/7 Support</p>
+            <div class="space-y-4 mb-8">
+              <div class="flex items-start">
+                <div class="bg-white/20 rounded-full p-3 mr-4">
+                  <i class="fas fa-shield-alt text-2xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg">Quality Guaranteed</h3>
+                  <p class="text-green-100">100% natural and certified products</p>
+                </div>
+              </div>
+
+              <div class="flex items-start">
+                <div class="bg-white/20 rounded-full p-3 mr-4">
+                  <i class="fas fa-shipping-fast text-2xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg">Fast Delivery</h3>
+                  <p class="text-green-100">Express shipping available nationwide</p>
+                </div>
+              </div>
+
+              <div class="flex items-start">
+                <div class="bg-white/20 rounded-full p-3 mr-4">
+                  <i class="fas fa-headset text-2xl"></i>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-lg">24/7 Support</h3>
+                  <p class="text-green-100">Our team is always here to help you</p>
+                </div>
+              </div>
+            </div>
+
+            <a href="products.html"
+               class="inline-flex items-center bg-white text-green-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl">
+              <i class="fas fa-shopping-bag mr-2"></i>
+              Start Shopping
+              <i class="fas fa-arrow-right ml-2"></i>
+            </a>
           </div>
 
-          <a href="products.html"
-             class="inline-block mt-8 bg-green-600 text-white px-6 py-3 rounded-full font-medium hover:bg-green-700 transition">
-            Start Shopping
-          </a>
+          <!-- Stats Card -->
+          <div class="bg-white rounded-3xl p-8 shadow-xl">
+            <h3 class="text-2xl font-bold mb-6">Why Choose Us?</h3>
+            <div class="grid grid-cols-2 gap-6">
+              <div class="text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">10K+</div>
+                <div class="text-gray-600 text-sm">Happy Customers</div>
+              </div>
+              <div class="text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">500+</div>
+                <div class="text-gray-600 text-sm">Products</div>
+              </div>
+              <div class="text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">98%</div>
+                <div class="text-gray-600 text-sm">Satisfaction</div>
+              </div>
+              <div class="text-center">
+                <div class="text-3xl font-bold text-green-600 mb-2">24/7</div>
+                <div class="text-gray-600 text-sm">Support</div>
+              </div>
+            </div>
+          </div>
         </section>
 
       </div>
     </div>
   </main>
 
-  <!-- scripts -->
-  <script src="../js/pages/login.js"></script>
+  <!-- FOOTER -->
+  <footer class="bg-gray-900 text-gray-200 py-8">
+    <div class="max-w-7xl mx-auto px-6 text-center">
+      <p class="text-sm text-gray-400">
+        © <span id="year"></span> VitaCare. All rights reserved.
+      </p>
+      <div class="flex justify-center space-x-6 mt-4 text-sm">
+        <a href="#" class="hover:text-green-400 transition">Privacy Policy</a>
+        <a href="#" class="hover:text-green-400 transition">Terms of Service</a>
+        <a href="contact.html" class="hover:text-green-400 transition">Contact Us</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Set current year
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Mobile menu toggle
+    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenu = document.getElementById('mobileMenu');
+    
+    menuToggle.addEventListener('click', () => {
+      mobileMenu.classList.toggle('hidden');
+      const icon = menuToggle.querySelector('i');
+      icon.classList.toggle('fa-bars');
+      icon.classList.toggle('fa-times');
+    });
+
+    // Tab switching
+    const userTab = document.getElementById('userTab');
+    const adminTab = document.getElementById('adminTab');
+    let isAdminMode = false;
+
+    userTab.addEventListener('click', () => {
+      isAdminMode = false;
+      userTab.classList.add('bg-green-600', 'text-white', 'shadow-lg');
+      userTab.classList.remove('text-gray-600');
+      adminTab.classList.remove('bg-green-600', 'text-white', 'shadow-lg');
+      adminTab.classList.add('text-gray-600');
+    });
+
+    adminTab.addEventListener('click', () => {
+      isAdminMode = true;
+      adminTab.classList.add('bg-green-600', 'text-white', 'shadow-lg');
+      adminTab.classList.remove('text-gray-600');
+      userTab.classList.remove('bg-green-600', 'text-white', 'shadow-lg');
+      userTab.classList.add('text-gray-600');
+    });
+
+    // Password toggle
+    const togglePassword = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+
+    togglePassword.addEventListener('click', () => {
+      const type = passwordInput.type === 'password' ? 'text' : 'password';
+      passwordInput.type = type;
+      const icon = togglePassword.querySelector('i');
+      icon.classList.toggle('fa-eye');
+      icon.classList.toggle('fa-eye-slash');
+    });
+
+    // Form submission
+    const loginForm = document.getElementById('loginForm');
+    const errorMsg = document.getElementById('errorMsg');
+    const errorText = document.getElementById('errorText');
+    const successMsg = document.getElementById('successMsg');
+
+    loginForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // Hide previous messages
+      errorMsg.classList.add('hidden');
+      successMsg.classList.add('hidden');
+
+      // Demo validation
+      if (isAdminMode) {
+        if (email === 'admin@vitacare.com' && password === 'admin123') {
+          showSuccess('Admin dashboard');
+        } else {
+          showError('Invalid admin credentials');
+        }
+      } else {
+        if (email === 'user@vitacare.com' && password === '123456') {
+          showSuccess('home page');
+        } else {
+          showError('Invalid email or password');
+        }
+      }
+    });
+
+    function showError(message) {
+      errorText.textContent = message;
+      errorMsg.classList.remove('hidden');
+      errorMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function showSuccess(destination) {
+      successMsg.classList.remove('hidden');
+      successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      
+      // Simulate redirect
+      setTimeout(() => {
+        alert(`Login successful! Redirecting to ${destination}...`);
+        loginForm.reset();
+        successMsg.classList.add('hidden');
+      }, 2000);
+    }
+
+    // Navbar scroll effect
+    window.addEventListener('scroll', () => {
+      const navbar = document.getElementById('navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('shadow-xl');
+      } else {
+        navbar.classList.remove('shadow-xl');
+      }
+    });
+  </script>
+
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(30px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    
+    .animate-fadeIn {
+      animation: fadeIn 0.8s ease-out;
+    }
+    
+    .animate-slideIn {
+      animation: slideIn 0.8s ease-out;
+    }
+  </style>
+
 </body>
 </html>

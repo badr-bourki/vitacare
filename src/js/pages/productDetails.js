@@ -1,135 +1,170 @@
-const detailsEl = document.getElementById("details");
-
-function getIdFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return Number(params.get("id"));
+// ================== SAFETY CHECK ==================
+if (!Array.isArray(window.products)) {
+  console.error('Products not loaded');
+  document.getElementById('details').innerHTML = 'Products data not available.';
+  throw new Error('Products missing');
 }
 
-function starsHTML(rating = 4.9) {
-  const full = Math.floor(rating);
-  const hasHalf = rating - full >= 0.5;
+// ================== GET PRODUCT ID ==================
+const params = new URLSearchParams(window.location.search);
+const productId = Number(params.get('id'));
 
-  let html = "";
+if (!productId) {
+  document.getElementById('details').innerHTML = 'Invalid product ID.';
+  throw new Error('Invalid product id');
+}
+
+// ================== FIND PRODUCT ==================
+const product = window.products.find(p => p.id === productId);
+
+// ================== PRODUCT NOT FOUND ==================
+if (!product) {
+  document.getElementById('details').innerHTML = `
+    <div class="col-span-full text-center py-20">
+      <h2 class="text-3xl font-bold mb-4">Product Not Found</h2>
+      <a href="products.html" class="text-green-600 underline">← Back to Products</a>
+    </div>
+  `;
+  throw new Error('Product not found');
+}
+
+// ================== RELATED PRODUCTS ==================
+const relatedProducts = window.products
+  .filter(p => p.category === product.category && p.id !== product.id)
+  .slice(0, 4);
+
+// ================== RENDER PRODUCT ==================
+document.getElementById('details').innerHTML = `
+<div class="grid md:grid-cols-2 gap-12">
+
+  <div>
+    <img src="${product.image}" class="rounded-2xl shadow-lg w-full"
+      onerror="this.src='https://via.placeholder.com/600x400?text=No+Image'">
+  </div>
+
+  <div>
+    <span class="text-green-600 font-bold uppercase">${product.category}</span>
+    <h1 class="text-4xl font-bold my-4">${product.name}</h1>
+
+    <div class="flex items-center gap-2 mb-4">
+      ${generateStars(product.rating || 4.5)}
+      <span>${product.rating || 4.5}</span>
+    </div>
+
+    <div class="text-4xl text-green-600 font-bold mb-6">
+      ${product.price}
+      ${product.oldPrice ? `<span class="text-gray-400 line-through text-xl ml-3">${product.oldPrice}</span>` : ''}
+    </div>
+
+    <p class="text-gray-700 mb-6">${product.description}</p>
+
+    <div class="mb-6">
+      <label class="font-bold">Quantity</label>
+      <div class="flex gap-3 mt-2">
+        <button onclick="changeQty(-1)">-</button>
+        <input id="quantity" type="number" value="1" min="1" max="99">
+        <button onclick="changeQty(1)">+</button>
+      </div>
+    </div>
+
+    <button
+      onclick="addToCart(event, ${product.id})"
+      class="bg-green-600 text-white px-6 py-3 rounded-lg"
+      ${product.inStock === false ? 'disabled' : ''}>
+      ${product.inStock === false ? 'Out of Stock' : 'Add to Cart'}
+    </button>
+
+    <button
+      onclick="toggleWishlist(event, ${product.id})"
+      class="ml-4 border px-6 py-3 rounded-lg">
+      ♥
+    </button>
+  </div>
+
+</div>
+`;
+
+// ================== RELATED PRODUCTS ==================
+if (relatedProducts.length) {
+  const section = document.createElement('div');
+  section.className = 'mt-16';
+  section.innerHTML = `
+    <h2 class="text-3xl font-bold mb-6">Related Products</h2>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+      ${relatedProducts.map(p => `
+        <a href="product-details.html?id=${p.id}" class="border rounded-xl p-4 block">
+          <img src="${p.image}" class="h-40 w-full object-cover mb-3">
+          <h3 class="font-bold">${p.name}</h3>
+          <span class="text-green-600">${p.price}</span>
+        </a>
+      `).join('')}
+    </div>
+  `;
+  document.getElementById('details').appendChild(section);
+}
+
+// ================== REVIEWS ==================
+addReviewsSection(product);
+
+// ================== FUNCTIONS ==================
+
+function generateStars(rating) {
+  let html = '';
   for (let i = 1; i <= 5; i++) {
-    if (i <= full) {
-      html += `<span class="text-yellow-400 text-xl">★</span>`;
-    } else if (i === full + 1 && hasHalf) {
-      html += `<span class="text-yellow-400 text-xl">★</span>`;
-    } else {
-      html += `<span class="text-gray-300 text-xl">★</span>`;
-    }
+    html += `<span class="${i <= Math.floor(rating) ? 'text-yellow-400' : 'text-gray-300'}">★</span>`;
   }
   return html;
 }
 
-function money(n) {
-  return `$${Number(n).toFixed(2)}`;
+function changeQty(change) {
+  const input = document.getElementById('quantity');
+  const value = Number(input.value) + change;
+  if (value >= 1 && value <= 99) input.value = value;
 }
 
-const id = getIdFromURL();
-const product = window.products.find((p) => p.id === id);
+function addToCart(event, id) {
+  const qty = Number(document.getElementById('quantity').value);
+  const btn = event.currentTarget;
+  btn.textContent = 'Added!';
+  btn.disabled = true;
 
-if (!product) {
-  detailsEl.innerHTML = `<div class="bg-white p-6 rounded-2xl border">Product not found.</div>`;
-} else {
-  // بيانات إضافية بسيطة (تقدر تغيّرها لاحقاً لكل منتج)
-  const benefits = [
-    "High quality ingredients",
-    "Supports daily wellness",
-    "Premium selected formula",
-  ];
+  showNotification(`${qty} × ${product.name} added to cart`);
+}
 
-  const ingredients = [
-    "Natural extracts",
-    "Vitamins & minerals",
-    "Clean formula",
-  ];
+function toggleWishlist(event) {
+  const btn = event.currentTarget;
+  btn.classList.toggle('text-red-500');
+  showNotification('Wishlist updated');
+}
 
-  detailsEl.innerHTML = `
-    <!-- Left: Image -->
-    <div class="bg-white rounded-2xl border overflow-hidden">
-      <img src="${product.image}" alt="${product.name}" class="w-full h-[520px] object-cover" />
+function showNotification(text) {
+  const div = document.createElement('div');
+  div.className = 'fixed top-10 right-10 bg-green-600 text-white px-6 py-3 rounded-lg';
+  div.textContent = text;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 3000);
+}
+
+function addReviewsSection(product) {
+  const div = document.createElement('div');
+  div.className = 'mt-20';
+  div.innerHTML = `
+    <h2 class="text-3xl font-bold mb-6">Customer Reviews</h2>
+    <p class="mb-4">${product.reviews || 127} reviews</p>
+    ${generateReviews()}
+  `;
+  document.getElementById('details').appendChild(div);
+}
+
+function generateReviews() {
+  return `
+    <div class="border p-4 rounded-lg mb-4">
+      <strong>Sarah M.</strong>
+      <p>Great product, highly recommended!</p>
     </div>
-
-    <!-- Right: Info -->
-    <div class="bg-white rounded-2xl border p-6">
-      <div class="flex items-center gap-3">
-        <div>${starsHTML(4.9)}</div>
-        <p class="text-gray-600 text-sm">4.9 (289 reviews)</p>
-      </div>
-
-      <h1 class="text-3xl md:text-4xl font-bold mt-3">${product.name}</h1>
-      <p class="text-green-700 text-3xl font-extrabold mt-3">${money(product.price)}</p>
-
-      <p class="text-gray-600 mt-4">${product.description}</p>
-
-      <div class="mt-6">
-        <h3 class="font-semibold text-lg">Benefits</h3>
-        <ul class="mt-3 space-y-2">
-          ${benefits.map(b => `
-            <li class="flex items-center gap-2 text-gray-700">
-              <span class="text-green-600 font-bold">✓</span> ${b}
-            </li>
-          `).join("")}
-        </ul>
-      </div>
-
-      <div class="mt-6">
-        <h3 class="font-semibold text-lg">Key Ingredients</h3>
-        <div class="flex flex-wrap gap-2 mt-3">
-          ${ingredients.map(i => `
-            <span class="px-4 py-2 rounded-full bg-green-50 text-green-700 text-sm border border-green-100">${i}</span>
-          `).join("")}
-        </div>
-      </div>
-
-      <!-- Quantity + Add -->
-      <div class="mt-8 flex flex-col sm:flex-row sm:items-center gap-4">
-        <div class="flex items-center border rounded-full overflow-hidden w-fit">
-          <button id="decQty" class="w-12 h-12 hover:bg-gray-50">-</button>
-          <span id="qty" class="w-14 text-center font-semibold">1</span>
-          <button id="incQty" class="w-12 h-12 hover:bg-gray-50">+</button>
-        </div>
-
-        <button id="addToCartBtn"
-          class="flex-1 bg-green-600 text-white py-3 rounded-full font-medium hover:bg-green-700 transition">
-          Add to Cart - ${money(product.price)}
-        </button>
-      </div>
-
-      <p id="msg" class="text-sm text-green-700 mt-3 hidden">Added to cart ✓</p>
+    <div class="border p-4 rounded-lg">
+      <strong>John D.</strong>
+      <p>Worth the price.</p>
     </div>
   `;
-
-  // Qty logic
-  let qty = 1;
-  const qtyEl = document.getElementById("qty");
-  const dec = document.getElementById("decQty");
-  const inc = document.getElementById("incQty");
-  const addBtn = document.getElementById("addToCartBtn");
-  const msg = document.getElementById("msg");
-
-  function updateBtnText() {
-    addBtn.textContent = `Add to Cart - ${money(product.price * qty)}`;
-  }
-
-  dec.addEventListener("click", () => {
-    qty = Math.max(1, qty - 1);
-    qtyEl.textContent = qty;
-    updateBtnText();
-  });
-
-  inc.addEventListener("click", () => {
-    qty += 1;
-    qtyEl.textContent = qty;
-    updateBtnText();
-  });
-
-  addBtn.addEventListener("click", () => {
-    for (let i = 0; i < qty; i++) {
-      window.cartStorage.addToCart(product);
-    }
-    msg.classList.remove("hidden");
-    setTimeout(() => msg.classList.add("hidden"), 1200);
-  });
 }

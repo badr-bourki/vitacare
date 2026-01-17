@@ -5,8 +5,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>VitaCare – Health & Beauty</title>
-
-    <!-- Tailwind CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
@@ -21,173 +19,165 @@
                 Vita<span class="text-gray-900">Care</span>
             </a>
 
-            <!-- Links -->
+            <!-- Desktop Links -->
             <ul class="hidden md:flex space-x-8 font-medium">
-                <li><a href="index.html" class="hover:text-green-600">Home</a></li>
-                <li><a href="products.html" class="hover:text-green-600">Products</a></li>
-                <li><a href="about.html" class="hover:text-green-600">About</a></li>
-                <li><a href="contact.html" class="hover:text-green-600">Contact</a></li>
+                <li><a href="index.html" class="hover:text-green-600 transition">Home</a></li>
+                <li><a href="products.html" class="hover:text-green-600 transition">Products</a></li>
+                <li><a href="about.html" class="hover:text-green-600 transition">About</a></li>
+                <li><a href="contact.html" class="hover:text-green-600 transition">Contact</a></li>
             </ul>
 
             <!-- Actions -->
             <div class="flex items-center space-x-4">
-                <a href="login.html" class="text-sm font-medium hover:text-green-600">
+                <a href="login.html" class="text-sm font-medium hover:text-green-600 transition">
                     Login
                 </a>
                 <a href="cart.html"
-                    class="bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition">
-                    Cart
+                    class="relative bg-green-600 text-white px-4 py-2 rounded-full hover:bg-green-700 transition">
+                    🛒 Cart
+                    <span id="cartCount"
+                        class="absolute -top-2 -right-2 bg-red-500 text-white text-xs w-5 h-5 rounded-full flex items-center justify-center">0</span>
                 </a>
+                <!-- Mobile Menu Button -->
+                <button id="mobileMenuBtn" class="md:hidden text-gray-800">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 6h16M4 12h16M4 18h16"></path>
+                    </svg>
+                </button>
             </div>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t">
+            <ul class="flex flex-col space-y-2 px-6 py-4">
+                <li><a href="index.html" class="block hover:text-green-600 transition">Home</a></li>
+                <li><a href="products.html" class="block hover:text-green-600 transition">Products</a></li>
+                <li><a href="about.html" class="block hover:text-green-600 transition">About</a></li>
+                <li><a href="contact.html" class="block hover:text-green-600 transition">Contact</a></li>
+            </ul>
         </div>
     </nav>
 
     <!-- ================= HERO SECTION ================= -->
-<section
-  class="pt-32 min-h-screen bg-cover bg-center relative"
-   style="background-image: url('../assets/images/ui/hero-bg.jpg');"
->
-  <!-- overlay خفيف لقراءة النص -->
-  <div class="absolute inset-0 bg-black/40"></div>
-
-  <div class="relative max-w-7xl mx-auto px-6 flex items-center min-h-screen text-white">
-    <div class="max-w-xl">
-      <h1 class="text-5xl font-extrabold leading-tight mb-6">
-        Nourish Your Body,
-        <span class="text-green-600">Transform Your Life</span>
-      </h1>
-      <p class="text-lg mb-8">
-        Discover premium beauty, wellness, and skincare products crafted with nature's finest ingredients. Experience the power of Aloe Vera and botanical extracts.
-      </p>
-      <div class="flex space-x-4">
-        <a href="products.html"
-           class="bg-green-600 text-white px-6 py-3 rounded-full font-medium hover:bg-green-700 transition">
-           Shop Now
-        </a>
-        <a href="about.html"
-           class="border border-white text-white px-6 py-3 rounded-full font-medium hover:bg-white hover:text-green-600 transition">
-           Learn More
-        </a>
-      </div>
-    </div>
-  </div>
-</section>
-
-   <!-- ================= FEATURED PRODUCTS ================= -->
-<section class="py-16 bg-white">
-  <div class="max-w-7xl mx-auto px-6">
-
-    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
-      <div>
-        <h2 class="text-3xl md:text-4xl font-bold">Featured Products</h2>
-        <p class="text-gray-600 mt-2">
-          منتجات مميزة مختارة بعناية
-        </p>
-      </div>
-      <a href="products.html" class="text-green-600 font-medium hover:underline">
-        View all
-      </a>
-    </div>
-
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-      <!-- Product 1 -->
-      <div class="border rounded-2xl overflow-hidden hover:shadow-md transition">
-        <img src="../assets/images/products/p1.jpeg"
-             class="w-full h-52 object-cover">
-        <div class="p-4">
-          <p class="text-sm text-gray-500">Skincare</p>
-          <h3 class="font-semibold text-lg">Vitamin C Serum</h3>
-          <div class="flex justify-between items-center mt-3">
-            <span class="font-bold text-green-600">$19.99</span>
-            <button class="bg-green-600 text-white px-4 py-2 rounded-full text-sm hover:bg-green-700">
-              Add
-            </button>
-          </div>
+    <section class="pt-15 min-h-screen bg-cover bg-center relative"
+        style="background-image: url('../assets/images/ui/hero-bg.jpg');">
+        <div class="max-w-7xl mx-auto px-6 flex items-center min-h-screen">
+            <div class="max-w-xl">
+                <div class="inline-block bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium mb-6">
+                    ✨ Natural & Organic Products
+                </div>
+                <h1 class="text-5xl md:text-6xl font-extrabold leading-tight mb-6">
+                    Nourish Your Body,
+                    <span class="text-green-600">Transform Your Life</span>
+                </h1>
+                <p class="text-lg text-gray-600 mb-8">
+                    Discover premium beauty, wellness, and skincare products crafted with nature's finest ingredients.
+                    Experience the power of Aloe Vera and botanical extracts.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="products.html"
+                        class="bg-green-600 text-white px-6 py-3 rounded-full font-medium hover:bg-green-700 transition shadow-lg">
+                        Shop Now
+                    </a>
+                    <a href="about.html"
+                        class="border-2 border-green-600 text-green-600 px-6 py-3 rounded-full font-medium hover:bg-green-600 hover:text-white transition">
+                        Learn More
+                    </a>
+                </div>
+            </div>
         </div>
-      </div>
+    </section>
 
-      <!-- Product 2 -->
-      <div class="border rounded-2xl overflow-hidden hover:shadow-md transition">
-        <img src="../assets/images/products/p2.jpeg"
-             class="w-full h-52 object-cover">
-        <div class="p-4">
-          <p class="text-sm text-gray-500">Supplements</p>
-          <h3 class="font-semibold text-lg">Omega 3</h3>
-          <div class="flex justify-between items-center mt-3">
-            <span class="font-bold text-green-600">$14.50</span>
-            <button class="bg-green-600 text-white px-4 py-2 rounded-full text-sm hover:bg-green-700">
-              Add
-            </button>
-          </div>
+    <!-- ================= FEATURED PRODUCTS ================= -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-6">
+
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10">
+                <div>
+                    <h2 class="text-3xl md:text-4xl font-bold">Featured Products</h2>
+                    <p class="text-gray-600 mt-2">منتجات مميزة مختارة بعناية</p>
+                </div>
+                <a href="products.html" class="text-green-600 font-medium hover:underline">View all →</a>
+            </div>
+
+            <div id="featuredProducts" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <!-- Products will be loaded by JS -->
+            </div>
+
         </div>
-      </div>
-
-      <!-- Product 3 -->
-      <div class="border rounded-2xl overflow-hidden hover:shadow-md transition">
-        <img src="../assets/images/products/p3.jpeg"
-             class="w-full h-52 object-cover">
-        <div class="p-4">
-          <p class="text-sm text-gray-500">Body Care</p>
-          <h3 class="font-semibold text-lg">Aloe Body Lotion</h3>
-          <div class="flex justify-between items-center mt-3">
-            <span class="font-bold text-green-600">$11.00</span>
-            <button class="bg-green-600 text-white px-4 py-2 rounded-full text-sm hover:bg-green-700">
-              Add
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Product 4 -->
-      <div class="border rounded-2xl overflow-hidden hover:shadow-md transition">
-        <img src="../assets/images/products/p4.jpeg"
-             class="w-full h-52 object-cover">
-        <div class="p-4">
-          <p class="text-sm text-gray-500">Health</p>
-          <h3 class="font-semibold text-lg">Multivitamin</h3>
-          <div class="flex justify-between items-center mt-3">
-            <span class="font-bold text-green-600">$16.75</span>
-            <button class="bg-green-600 text-white px-4 py-2 rounded-full text-sm hover:bg-green-700">
-              Add
-            </button>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </div>
-</section>
+    </section>
 
     <!-- ================= SHOP BY CATEGORY ================= -->
     <section class="py-16 bg-gray-50">
         <div class="max-w-7xl mx-auto px-6">
 
-            <h2 class="text-3xl font-bold mb-2">Shop by Category</h2>
-            <p class="text-gray-600 mb-8"></p>
+            <div class="text-center mb-12">
+                <h2 class="text-3xl md:text-4xl font-bold mb-3">Shop by Category</h2>
+                <p class="text-gray-600">Explore our curated collection of natural wellness products</p>
+            </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition">
-                    <h3 class="font-semibold text-lg mb-2">Skincare</h3>
-                    <p class="text-gray-600 text-sm"></p>
-                </div>
+                <!-- Beauty Category -->
+                <a href="products.html?category=beauty"
+                    class="relative h-80 rounded-3xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition">
+                    <img src="../assets/images/categories/beauty.jpg.webp"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                        onerror="this.src='https: //images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&h=600&fit=crop'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <div class="text-3xl mb-3">✨</div>
+                        <h3 class="text-2xl font-bold mb-2">Beauty</h3>
+                        <p class="text-sm text-gray-200">Hair care, cosmetics & personal care</p>
+                        <div class="mt-3 text-green-400 font-medium group-hover:underline">Explore →</div>
+                    </div>
+                </a>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition">
-                    <h3 class="font-semibold text-lg mb-2">Supplements</h3>
-                    <p class="text-gray-600 text-sm"></p>
-                </div>
+                <!-- Skincare Category -->
+                <a href="products.html?category=skincare"
+                    class="relative h-80 rounded-3xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition">
+                    <img src="../assets/images/categories/skincare.jpg.webp"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                        onerror="this.src='https: //images.unsplash.com/photo-1556228578-0d85b1a4d571?w=500&h=600&fit=crop'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <div class="text-3xl mb-3">🌿</div>
+                        <h3 class="text-2xl font-bold mb-2">Skincare</h3>
+                        <p class="text-sm text-gray-200">Lotions, creams & skin treatments</p>
+                        <div class="mt-3 text-green-400 font-medium group-hover:underline">Explore →</div>
+                    </div>
+                </a>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition">
-                    <h3 class="font-semibold text-lg mb-2">Body Care</h3>
-                    <p class="text-gray-600 text-sm"></p>
-                </div>
+                <!-- Wellness Category -->
+                <a href="products.html?category=wellness"
+                    class="relative h-80 rounded-3xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition">
+                    <img src="../assets/images/categories/wellness.jpg.webp"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                        onerror="this.src='https: //images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500&h=600&fit=crop'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <div class="text-3xl mb-3">🧘</div>
+                        <h3 class="text-2xl font-bold mb-2">Wellness</h3>
+                        <p class="text-sm text-gray-200">Body care & daily essentials</p>
+                        <div class="mt-3 text-green-400 font-medium group-hover:underline">Explore →</div>
+                    </div>
+                </a>
 
-                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition">
-                    <h3 class="font-semibold text-lg mb-2">Health</h3>
-                    <p class="text-gray-600 text-sm"></p>
-                </div>
+                <!-- Supplements Category -->
+                <a href="products.html?category=supplements"
+                    class="relative h-80 rounded-3xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition">
+                    <img src="../assets/images/categories/supplements.jpg.webp"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                        onerror="this.src='https: //images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=500&h=600&fit=crop'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <div class="text-3xl mb-3">💊</div>
+                        <h3 class="text-2xl font-bold mb-2">Supplements</h3>
+                        <p class="text-sm text-gray-200">Vitamins, minerals & nutrition</p>
+                        <div class="mt-3 text-green-400 font-medium group-hover:underline">Explore →</div>
+                    </div>
+                </a>
 
             </div>
         </div>
@@ -196,260 +186,169 @@
     <!-- ================= WHY CHOOSE VITACARE ================= -->
     <section class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-6">
-
             <div class="text-center max-w-2xl mx-auto mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold">Why choose VitaCare</h2>
-                <p class="text-gray-600 mt-3">
-                    نحن نساعدك تعيش حياة صحية وجميلة بمنتجات مختارة بعناية وجودة عالية.
-                </p>
+                <h2 class="text-3xl md:text-4xl font-bold">Why Choose VitaCare</h2>
+                <p class="text-gray-600 mt-3">We help you live a healthy and beautiful life with carefully selected products and high quality.</p>
             </div>
-
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
 
-                <!-- Card 1 -->
-                <div class="border rounded-2xl p-6 hover:shadow-md transition">
-                    <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center mb-4">
-                        <span class="text-green-700 text-xl font-bold">✓</span>
+                <!-- Quality Guaranteed -->
+                <div class="relative h-72 rounded-3xl overflow-hidden group shadow-lg hover:shadow-xl transition">
+                    <img src="../assets/images/features/quality.jpg.webp"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                        onerror="this.src='https: //images.unsplash.com/photo-1556228720-195a672e8a03?w=400&h=500&fit=crop'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green-500/20 backdrop-blur-sm flex items-center justify-center mb-4 border border-green-400/30">
+                            <span class="text-green-300 text-2xl font-bold">✓</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Quality Guaranteed</h3>
+                        <p class="text-sm text-gray-200">نختار المنتجات بعناية لضمان أفضل جودة وتجربة ممتازة.</p>
                     </div>
-                    <h3 class="font-semibold text-lg mb-2">Quality Guaranteed</h3>
-                    <p class="text-gray-600 text-sm">
-                        نختار المنتجات بعناية لضمان أفضل جودة وتجربة ممتازة.
                 </div>
 
-                <!-- Card 2 -->
-                <div class="border rounded-2xl p-6 hover:shadow-md transition">
-                    <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center mb-4">
-                        <span class="text-green-700 text-xl font-bold">⚡</span>
+                <!-- Fast Delivery -->
+                <div class="relative h-72 rounded-3xl overflow-hidden group shadow-lg hover:shadow-xl transition">
+                    <img src="../assets/images/features/delivery.jpg.jpg"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                        onerror="this.src='https: //images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=400&h=500&fit=crop'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green-500/20 backdrop-blur-sm flex items-center justify-center mb-4 border border-green-400/30">
+                            <span class="text-green-300 text-2xl font-bold">⚡</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Fast Delivery</h3>
+                        <p class="text-sm text-gray-200">توصيل سريع وآمن حتى باب منزلك في أقرب وقت.</p>
                     </div>
-                    <h3 class="font-semibold text-lg mb-2">Fast Delivery</h3>
-                    <p class="text-gray-600 text-sm">
-                        توصيل سريع وآمن حتى باب منزلك في أقرب وقت.
-                    </p>
                 </div>
 
-                <!-- Card 3 -->
-                <div class="border rounded-2xl p-6 hover:shadow-md transition">
-                    <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center mb-4">
-                        <span class="text-green-700 text-xl font-bold">💬</span>
+                <!-- 24/7 Support -->
+                <div class="relative h-72 rounded-3xl overflow-hidden group shadow-lg hover:shadow-xl transition">
+                    <img src="../assets/images/features/support.jpg.webp"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                        onerror="this.src='https: //images.unsplash.com/photo-1553775282-20af80779df7?w=400&h=500&fit=crop'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green-500/20 backdrop-blur-sm flex items-center justify-center mb-4 border border-green-400/30">
+                            <span class="text-green-300 text-2xl font-bold">💬</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">24/7 Support</h3>
+                        <p class="text-sm text-gray-200">فريق دعم جاهز للإجابة على أسئلتك ومساعدتك دائمًا.</p>
                     </div>
-                    <h3 class="font-semibold text-lg mb-2">24/7 Support</h3>
-                    <p class="text-gray-600 text-sm">
-                        فريق دعم جاهز للإجابة على أسئلتك ومساعدتك دائمًا.
-                    </p>
                 </div>
 
-                <!-- Card 4 -->
-                <div class="border rounded-2xl p-6 hover:shadow-md transition">
-                    <div class="w-12 h-12 rounded-xl bg-green-100 flex items-center justify-center mb-4">
-                        <span class="text-green-700 text-xl font-bold">★</span>
+                <!-- Trusted by Customers -->
+                <div class="relative h-72 rounded-3xl overflow-hidden group shadow-lg hover:shadow-xl transition">
+                    <img src="../assets/images/features/trust.jpg.webp"
+                        class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
+                        onerror="this.src='https: //images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&h=500&fit=crop'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                    <div class="absolute bottom-0 left-0 right-0 p-6 text-white">
+                        <div
+                            class="w-12 h-12 rounded-xl bg-green-500/20 backdrop-blur-sm flex items-center justify-center mb-4 border border-green-400/30">
+                            <span class="text-green-300 text-2xl font-bold">★</span>
+                        </div>
+                        <h3 class="text-xl font-bold mb-2">Trusted by Customers</h3>
+                        <p class="text-sm text-gray-200">تقييمات ممتازة وتجارب حقيقية من عملائنا.</p>
                     </div>
-                    <h3 class="font-semibold text-lg mb-2">Trusted by Customers</h3>
-                    <p class="text-gray-600 text-sm">
-                        تقييمات ممتازة وتجارب حقيقية من عملائنا.
-                    </p>
                 </div>
 
             </div>
 
-            <!-- CTA صغير تحت -->
             <div class="mt-12 text-center">
                 <a href="products.html"
-                    class="inline-block bg-green-600 text-white px-7 py-3 rounded-full font-medium hover:bg-green-700 transition">
+                    class="inline-block bg-green-600 text-white px-7 py-3 rounded-full font-medium hover:bg-green-700 transition shadow-lg">
                     Explore Products
                 </a>
             </div>
-
         </div>
     </section>
+
     <!-- ================= TESTIMONIALS ================= -->
     <section class="py-16 bg-gray-50">
         <div class="max-w-7xl mx-auto px-6">
-
             <div class="text-center max-w-2xl mx-auto mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold">What our customers say</h2>
-                <p class="text-gray-600 mt-3">
-                    آراء حقيقية من عملائنا حول تجربتهم مع منتجات VitaCare
-                </p>
+                <h2 class="text-3xl md:text-4xl font-bold">What Our Customers Say</h2>
+                <p class="text-gray-600 mt-3">آراء حقيقية من عملائنا حول تجربتهم مع منتجات VitaCare</p>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-                <!-- Testimonial 1 -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition">
-                    <p class="text-gray-700 mb-4">
-                        “منتجات رائعة! لاحظت فرقًا كبيرًا في بشرتي بعد استعمال منتجات VitaCare.
-                        الجودة ممتازة والتوصيل سريع.”
-                    </p>
-
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition">
+                    <div class="text-yellow-500 mb-3">★★★★★</div>
+                    <p class="text-gray-700 mb-4">"منتجات رائعة! لاحظت فرقًا كبيرًا في بشرتي بعد استعمال منتجات
+                        VitaCare. الجودة ممتازة والتوصيل سريع."</p>
                     <div class="flex items-center gap-3">
                         <div
                             class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center font-bold text-green-700">
-                            A
-                        </div>
+                            A</div>
                         <div>
                             <p class="font-semibold">Amina</p>
                             <p class="text-sm text-gray-500">Skincare customer</p>
                         </div>
                     </div>
                 </div>
-
-                <!-- Testimonial 2 -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition">
-                    <p class="text-gray-700 mb-4">
-                        “أفضل مكملات غذائية جربتها. السعر مناسب والجودة عالية.
-                        أنصح بها لكل من يهتم بصحته.”
-                    </p>
-
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition">
+                    <div class="text-yellow-500 mb-3">★★★★★</div>
+                    <p class="text-gray-700 mb-4">"أفضل مكملات غذائية جربتها. السعر مناسب والجودة عالية. أنصح بها لكل من
+                        يهتم بصحته."</p>
                     <div class="flex items-center gap-3">
                         <div
                             class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center font-bold text-green-700">
-                            M
-                        </div>
+                            M</div>
                         <div>
                             <p class="font-semibold">Mohamed</p>
                             <p class="text-sm text-gray-500">Nutrition customer</p>
                         </div>
                     </div>
                 </div>
-
-                <!-- Testimonial 3 -->
-                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition">
-                    <p class="text-gray-700 mb-4">
-                        “خدمة ممتازة ودعم سريع. الموقع سهل الاستعمال والمنتجات أصلية 100%.”
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-lg transition">
+                    <div class="text-yellow-500 mb-3">★★★★★</div>
+                    <p class="text-gray-700 mb-4">"خدمة ممتازة ودعم سريع. الموقع سهل الاستعمال والمنتجات أصلية 100%."
                     </p>
-
                     <div class="flex items-center gap-3">
                         <div
                             class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center font-bold text-green-700">
-                            S
-                        </div>
+                            S</div>
                         <div>
                             <p class="font-semibold">Sara</p>
                             <p class="text-sm text-gray-500">Health products</p>
                         </div>
                     </div>
                 </div>
-
             </div>
-
-        </div>
-    </section>
-    <!-- ================= PRODUCT GALLERY ================= -->
-    <section class="py-16 bg-white">
-        <div class="max-w-7xl mx-auto px-6">
-
-            <div class="text-center mb-10">
-                <h2 class="text-3xl md:text-4xl font-bold">Our Products</h2>
-                <p class="text-gray-600 mt-2">
-                    مجموعة مختارة من منتجات العناية والصحة
-                </p>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6">
-
-                <!-- Product Image -->
-                <div class="group overflow-hidden rounded-2xl shadow-sm">
-                    <img src="../assets/images/products/p1.jpeg"
-                        class="w-full h-40 object-cover group-hover:scale-110 transition duration-300" />
-                </div>
-
-                <div class="group overflow-hidden rounded-2xl shadow-sm">
-                    <img src="../assets/images/products/p2.jpeg"
-                        class="w-full h-40 object-cover group-hover:scale-110 transition duration-300" />
-                </div>
-
-                <div class="group overflow-hidden rounded-2xl shadow-sm">
-                    <img src="../assets/images/products/p3.jpeg"
-                        class="w-full h-40 object-cover group-hover:scale-110 transition duration-300" />
-                </div>
-
-                <div class="group overflow-hidden rounded-2xl shadow-sm">
-                    <img src="../assets/images/products/p4.jpeg"
-                        class="w-full h-40 object-cover group-hover:scale-110 transition duration-300" />
-                </div>
-
-                <div class="group overflow-hidden rounded-2xl shadow-sm">
-                    <img src="../assets/images/products/p5.jpeg"
-                        class="w-full h-40 object-cover group-hover:scale-110 transition duration-300" />
-                </div>
-
-                <div class="group overflow-hidden rounded-2xl shadow-sm">
-                    <img src="../assets/images/products/p6.jpeg"
-                        class="w-full h-40 object-cover group-hover:scale-110 transition duration-300" />
-                </div>
-
-                <div class="group overflow-hidden rounded-2xl shadow-sm">
-                    <img src="../assets/images/products/p7.jpeg"
-                        class="w-full h-40 object-cover group-hover:scale-110 transition duration-300" />
-                </div>
-
-                <div class="group overflow-hidden rounded-2xl shadow-sm">
-                    <img src="../assets/images/products/p8.jpeg"
-                        class="w-full h-40 object-cover group-hover:scale-110 transition duration-300" />
-                </div>
-
-                <div class="group overflow-hidden rounded-2xl shadow-sm">
-                    <img src="../assets/images/products/p9.jpeg"
-                        class="w-full h-40 object-cover group-hover:scale-110 transition duration-300" />
-                </div>
-
-                <div class="group overflow-hidden rounded-2xl shadow-sm">
-                    <img src="../assets/images/products/p10.jpeg"
-                        class="w-full h-40 object-cover group-hover:scale-110 transition duration-300" />
-                </div>
-
-            </div>
-
-            <div class="text-center mt-10">
-                <a href="products.html"
-                    class="inline-block bg-green-600 text-white px-8 py-3 rounded-full font-medium hover:bg-green-700 transition">
-                    View All Products
-                </a>
-            </div>
-
         </div>
     </section>
 
     <!-- ================= FOOTER ================= -->
     <footer class="bg-gray-900 text-gray-200 pt-14 pb-8">
         <div class="max-w-7xl mx-auto px-6">
-
             <div class="grid grid-cols-1 md:grid-cols-4 gap-10">
-
-                <!-- Brand -->
                 <div>
-                    <h3 class="text-2xl font-bold text-green-400 mb-3">
-                        Vita<span class="text-white">Care</span>
-                    </h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        منتجات العناية والجمال والصحة والمكملات الغذائية بجودة عالية.
-                        هدفنا: حياة أفضل، صحة أفضل، وثقة أكبر.
-                    </p>
+                    <h3 class="text-2xl font-bold text-green-400 mb-3">Vita<span class="text-white">Care</span></h3>
+                    <p class="text-gray-400 text-sm leading-relaxed">منتجات العناية والجمال والصحة والمكملات الغذائية
+                        بجودة عالية. هدفنا: حياة أفضل، صحة أفضل، وثقة أكبر.</p>
                 </div>
-
-                <!-- Quick links -->
                 <div>
                     <h4 class="font-semibold text-lg mb-4">Quick Links</h4>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a class="hover:text-white" href="index.html">Home</a></li>
-                        <li><a class="hover:text-white" href="products.html">Products</a></li>
-                        <li><a class="hover:text-white" href="about.html">About</a></li>
-                        <li><a class="hover:text-white" href="contact.html">Contact</a></li>
+                        <li><a class="hover:text-white transition" href="index.html">Home</a></li>
+                        <li><a class="hover:text-white transition" href="products.html">Products</a></li>
+                        <li><a class="hover:text-white transition" href="about.html">About</a></li>
+                        <li><a class="hover:text-white transition" href="contact.html">Contact</a></li>
                     </ul>
                 </div>
-
-                <!-- Support -->
                 <div>
                     <h4 class="font-semibold text-lg mb-4">Support</h4>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a class="hover:text-white" href="#">Shipping & Delivery</a></li>
-                        <li><a class="hover:text-white" href="#">Returns Policy</a></li>
-                        <li><a class="hover:text-white" href="#">Privacy Policy</a></li>
-                        <li><a class="hover:text-white" href="#">Terms & Conditions</a></li>
+                        <li><a class="hover:text-white transition" href="#">Shipping & Delivery</a></li>
+                        <li><a class="hover:text-white transition" href="#">Returns Policy</a></li>
+                        <li><a class="hover:text-white transition" href="#">Privacy Policy</a></li>
+                        <li><a class="hover:text-white transition" href="#">Terms & Conditions</a></li>
                     </ul>
                 </div>
-
-                <!-- Contact -->
                 <div>
                     <h4 class="font-semibold text-lg mb-4">Contact</h4>
                     <ul class="space-y-2 text-gray-400 text-sm">
@@ -457,8 +356,6 @@
                         <li>📞 +212 6 00 00 00 00</li>
                         <li>✉️ support@vitacare.com</li>
                     </ul>
-
-                    <!-- Social -->
                     <div class="flex gap-3 mt-5">
                         <a href="#"
                             class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-600 transition">f</a>
@@ -468,18 +365,98 @@
                             class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center hover:bg-green-600 transition">in</a>
                     </div>
                 </div>
-
             </div>
-
             <div class="border-t border-gray-800 mt-10 pt-6 text-center text-gray-500 text-sm">
                 © <span id="year"></span> VitaCare. All rights reserved.
             </div>
-
         </div>
     </footer>
 
+    <!-- Toast Notification -->
+    <div id="toast" class="hidden fixed bottom-8 right-8 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50">
+        Product added to cart!
+    </div>
+
     <script>
-        document.getElementById("year").textContent = new Date().getFullYear();
+        // Featured Products Data
+        const featuredProducts = [
+            { id: 1, name: 'Vitamin C Serum', category: 'Skincare', price: 19.99, image: '../assets/images/products/p1.jpeg' },
+            { id: 2, name: 'Omega 3', category: 'Supplements', price: 14.50, image: '../assets/images/products/p2.jpeg' },
+            { id: 3, name: 'Aloe Body Lotion', category: 'Body Care', price: 11.00, image: '../assets/images/products/p3.jpeg' },
+            { id: 4, name: 'Multivitamin', category: 'Health', price: 16.75, image: '../assets/images/products/p4.jpeg' }
+        ];
+
+        // Load Products
+        function loadFeaturedProducts() {
+            const container = document.getElementById('featuredProducts');
+            container.innerHTML = featuredProducts.map(p => `
+                <div class="border rounded-2xl overflow-hidden hover:shadow-lg transition group">
+                    <img src="${p.image}" class="w-full h-52 object-cover group-hover:scale-105 transition duration-300">
+                    <div class="p-4">
+                        <p class="text-sm text-gray-500">${p.category}</p>
+                        <h3 class="font-semibold text-lg mt-1">${p.name}</h3>
+                        <div class="flex justify-between items-center mt-3">
+                            <span class="font-bold text-green-600">$${p.price}</span>
+                            <button onclick="addToCart(${p.id})" class="bg-green-600 text-white px-4 py-2 rounded-full text-sm hover:bg-green-700 transition">
+                                Add to Cart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Cart Functions
+        function getCart() {
+            return JSON.parse(localStorage.getItem('cart') || '[]');
+        }
+
+        function saveCart(cart) {
+            localStorage.setItem('cart', JSON.stringify(cart));
+            updateCartCount();
+        }
+
+        function addToCart(productId) {
+            const product = featuredProducts.find(p => p.id === productId);
+            if (!product) return;
+
+            const cart = getCart();
+            const existing = cart.find(item => item.id === productId);
+
+            if (existing) {
+                existing.quantity++;
+            } else {
+                cart.push({ ...product, quantity: 1 });
+            }
+
+            saveCart(cart);
+            showToast('Product added to cart!');
+        }
+
+        function updateCartCount() {
+            const cart = getCart();
+            const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cartCount').textContent = total;
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        // Mobile Menu
+        document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        });
+
+        // Year
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // Initialize
+        loadFeaturedProducts();
+        updateCartCount();
     </script>
 
 </body>
