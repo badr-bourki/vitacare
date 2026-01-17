@@ -1,16 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>VitaCare – My Account</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body class="bg-gray-50 text-gray-800">
 
-  <!-- NAVBAR -->
-  <nav class="bg-white/90 backdrop-blur shadow-md fixed w-full z-50">
+  <!-- Loading Screen -->
+  <div id="loadingScreen" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+    <div class="text-center">
+      <i class="fas fa-spinner fa-spin text-5xl text-green-600 mb-4"></i>
+      <p class="text-gray-600">Loading your account...</p>
+    </div>
+  </div>
+
+  <!-- NAVBAR (hidden until authenticated) -->
+  <nav id="mainNav" class="bg-white/90 backdrop-blur shadow-md fixed w-full z-50 hidden">
     <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
       <a href="index.html" class="text-2xl font-bold text-green-600">
         Vita<span class="text-gray-900">Care</span>
@@ -33,9 +43,9 @@
     </div>
   </nav>
 
-  <main class="pt-28 pb-16">
+  <main id="mainContent" class="pt-28 pb-16 hidden">
     <div class="max-w-6xl mx-auto px-6">
-      
+
       <!-- Welcome Section -->
       <div class="bg-gradient-to-r from-green-600 to-green-500 text-white rounded-3xl p-8 mb-8 shadow-xl">
         <h1 class="text-4xl font-bold mb-2">Welcome back, <span id="userName"></span>! 👋</h1>
@@ -43,14 +53,14 @@
       </div>
 
       <div class="grid md:grid-cols-3 gap-8">
-        
+
         <!-- User Profile Card -->
         <div class="md:col-span-2 bg-white border rounded-2xl p-6 shadow-lg">
           <div class="flex items-center justify-between mb-6">
             <h2 class="text-2xl font-bold text-gray-800">Personal Information</h2>
             <button id="editBtn" class="text-green-600 hover:text-green-700 font-medium">Edit Profile</button>
           </div>
-          
+
           <div id="userInfo" class="space-y-4">
             <!-- Dynamic content -->
           </div>
@@ -59,15 +69,19 @@
           <form id="editForm" class="hidden space-y-4 mt-6">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
-              <input type="text" id="editName" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" />
+              <input type="text" id="editName"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
-              <input type="tel" id="editPhone" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" />
+              <input type="tel" id="editPhone"
+                class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-green-500" />
             </div>
             <div class="flex gap-3">
-              <button type="submit" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">Save</button>
-              <button type="button" id="cancelEdit" class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">Cancel</button>
+              <button type="submit"
+                class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700">Save</button>
+              <button type="button" id="cancelEdit"
+                class="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300">Cancel</button>
             </div>
           </form>
         </div>
@@ -105,7 +119,7 @@
           <!-- Dynamic orders -->
         </div>
         <p id="emptyOrders" class="text-gray-500 text-center py-8 hidden">
-          You haven't placed any orders yet. 
+          You haven't placed any orders yet.
           <a href="products.html" class="text-green-600 hover:underline">Start Shopping →</a>
         </p>
       </section>
@@ -118,83 +132,122 @@
     </div>
   </footer>
 
+  <script src="../js/utils/supabase.js"></script>
   <script>
-    // Check if user is logged in
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    
-    if (!currentUser) {
-      window.location.href = 'login.html';
+    // Protect this page - require authentication
+    let currentUser = null;
+    let currentProfile = null;
+    let currentRole = null;
+
+    async function initAccount() {
+      try {
+        // Require authentication
+        const { user, profile, role } = await requireAuth('../pages/login.html');
+
+        if (!user) {
+          return; // Will redirect to login
+        }
+
+        currentUser = user;
+        currentProfile = profile;
+        currentRole = role;
+
+        // Hide loading screen and show content
+        document.getElementById('loadingScreen').classList.add('hidden');
+        document.getElementById('mainNav').classList.remove('hidden');
+        document.getElementById('mainContent').classList.remove('hidden');
+
+        // Display user info
+        displayUserInfo();
+      } catch (error) {
+        console.error('Account initialization error:', error);
+        window.location.href = 'login.html';
+      }
     }
 
-    // Display user info
-    document.getElementById('userName').textContent = currentUser.name.split(' ')[0];
-    document.getElementById('userNameNav').textContent = currentUser.name.split(' ')[0];
+    function displayUserInfo() {
+      if (!currentUser || !currentProfile) {
+        return;
+      }
 
-    const userInfoDiv = document.getElementById('userInfo');
-    userInfoDiv.innerHTML = `
-      <div class="flex items-center space-x-4 pb-4 border-b">
-        <div class="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
-          ${currentUser.name.charAt(0).toUpperCase()}
-        </div>
-        <div>
-          <h3 class="text-xl font-bold">${currentUser.name}</h3>
-          <p class="text-gray-500">Active Member</p>
-        </div>
-      </div>
-      
-      <div class="grid md:grid-cols-2 gap-6 mt-6">
-        <div>
-          <p class="text-sm text-gray-500 mb-1">Email Address</p>
-          <p class="font-medium text-gray-800">${currentUser.email}</p>
-        </div>
-        <div>
-          <p class="text-sm text-gray-500 mb-1">Phone Number</p>
-          <p class="font-medium text-gray-800">${currentUser.phone || 'Not provided'}</p>
-        </div>
-      </div>
-    `;
+      // Display name in header and nav
+      const firstName = currentProfile.full_name?.split(' ')[0] || 'User';
+      document.getElementById('userName').textContent = firstName;
+      document.getElementById('userNameNav').textContent = firstName;
 
-    // Member since
-    const memberDate = new Date(currentUser.createdAt);
-    document.getElementById('memberSince').textContent = memberDate.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+      // Display full profile info
+      const userInfoDiv = document.getElementById('userInfo');
+      userInfoDiv.innerHTML = `
+        <div class="flex items-center space-x-4 pb-4 border-b">
+          <div class="w-20 h-20 bg-green-600 rounded-full flex items-center justify-center text-white text-3xl font-bold">
+            ${currentProfile.full_name?.charAt(0).toUpperCase() || 'U'}
+          </div>
+          <div>
+            <h3 class="text-xl font-bold">${currentProfile.full_name || 'User'}</h3>
+            <p class="text-gray-500">Active Member</p>
+          </div>
+        </div>
+        
+        <div class="grid md:grid-cols-2 gap-6 mt-6">
+          <div>
+            <p class="text-sm text-gray-500 mb-1">Email Address</p>
+            <p class="font-medium text-gray-800">${currentProfile.email || currentUser.email}</p>
+          </div>
+          <div>
+            <p class="text-sm text-gray-500 mb-1">Phone Number</p>
+            <p class="font-medium text-gray-800">${currentProfile.phone || 'Not provided'}</p>
+          </div>
+        </div>
+      `;
 
-    // Load orders
-    const orders = JSON.parse(localStorage.getItem('orders') || '[]');
-    const userOrders = orders.filter(o => o.userEmail === currentUser.email);
-    
-    document.getElementById('totalOrders').textContent = userOrders.length;
+      // Member since
+      const memberDate = new Date(currentProfile.created_at || currentUser.created_at);
+      document.getElementById('memberSince').textContent = memberDate.toLocaleDateString('en-US', {
+        month: 'short',
+        year: 'numeric'
+      });
 
-    if (userOrders.length === 0) {
-      document.getElementById('emptyOrders').classList.remove('hidden');
-    } else {
-      const orderHistoryDiv = document.getElementById('orderHistory');
-      orderHistoryDiv.innerHTML = userOrders.map(order => `
-        <div class="border rounded-xl p-5 hover:shadow-md transition">
-          <div class="flex justify-between items-start mb-3">
-            <div>
-              <h3 class="font-semibold text-lg">Order #${order.id}</h3>
-              <p class="text-sm text-gray-500">${new Date(order.date).toLocaleDateString()}</p>
+      // Load orders (keeping localStorage for now as orders aren't in Supabase yet)
+      const orders = JSON.parse(localStorage.getItem('orders') || '[]');
+      const userOrders = orders.filter(o => o.userEmail === currentProfile.email);
+
+      document.getElementById('totalOrders').textContent = userOrders.length;
+
+      if (userOrders.length === 0) {
+        document.getElementById('emptyOrders').classList.remove('hidden');
+      } else {
+        const orderHistoryDiv = document.getElementById('orderHistory');
+        orderHistoryDiv.innerHTML = userOrders.map(order => `
+          <div class="border rounded-xl p-5 hover:shadow-md transition">
+            <div class="flex justify-between items-start mb-3">
+              <div>
+                <h3 class="font-semibold text-lg">Order #${order.id}</h3>
+                <p class="text-sm text-gray-500">${new Date(order.date).toLocaleDateString()}</p>
+              </div>
+              <span class="px-4 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                ${order.status}
+              </span>
             </div>
-            <span class="px-4 py-1 bg-green-100 text-green-700 rounded-full text-sm font-medium">
-              ${order.status}
-            </span>
+            <div class="border-t pt-3">
+              <p class="text-gray-700">${order.items} items</p>
+              <p class="text-xl font-bold text-green-600 mt-2">$${order.total}</p>
+            </div>
           </div>
-          <div class="border-t pt-3">
-            <p class="text-gray-700">${order.items} items</p>
-            <p class="text-xl font-bold text-green-600 mt-2">$${order.total}</p>
-          </div>
-        </div>
-      `).join('');
+        `).join('');
+      }
     }
 
     // Edit profile functionality
     const editBtn = document.getElementById('editBtn');
     const editForm = document.getElementById('editForm');
     const cancelEdit = document.getElementById('cancelEdit');
+    const userInfoDiv = document.getElementById('userInfo');
 
     editBtn.addEventListener('click', () => {
-      document.getElementById('editName').value = currentUser.name;
-      document.getElementById('editPhone').value = currentUser.phone || '';
+      if (!currentProfile) return;
+
+      document.getElementById('editName').value = currentProfile.full_name || '';
+      document.getElementById('editPhone').value = currentProfile.phone || '';
       userInfoDiv.classList.add('hidden');
       editForm.classList.remove('hidden');
     });
@@ -204,30 +257,59 @@
       userInfoDiv.classList.remove('hidden');
     });
 
-    editForm.addEventListener('submit', (e) => {
+    editForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
-      currentUser.name = document.getElementById('editName').value;
-      currentUser.phone = document.getElementById('editPhone').value;
-      
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
-      
-      const users = JSON.parse(localStorage.getItem('users'));
-      const userIndex = users.findIndex(u => u.email === currentUser.email);
-      users[userIndex] = currentUser;
-      localStorage.setItem('users', JSON.stringify(users));
-      
-      location.reload();
+
+      if (!currentUser || !currentProfile) return;
+
+      const newName = document.getElementById('editName').value.trim();
+      const newPhone = document.getElementById('editPhone').value.trim();
+
+      try {
+        // Update profile in Supabase
+        const { profile, error } = await updateProfile(currentUser.id, {
+          full_name: newName,
+          phone: newPhone
+        });
+
+        if (error) {
+          alert('Failed to update profile: ' + error.message);
+          return;
+        }
+
+        // Update local reference
+        currentProfile = profile;
+
+        // Refresh display
+        editForm.classList.add('hidden');
+        userInfoDiv.classList.remove('hidden');
+        displayUserInfo();
+
+        alert('Profile updated successfully!');
+      } catch (error) {
+        console.error('Profile update error:', error);
+        alert('Failed to update profile. Please try again.');
+      }
     });
 
     // Logout
-    document.getElementById('logoutBtn').addEventListener('click', () => {
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
       if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('currentUser');
-        window.location.href = 'login.html';
+        const { error } = await signOut();
+
+        if (error) {
+          console.error('Logout error:', error);
+          alert('Failed to logout. Please try again.');
+        } else {
+          window.location.href = 'login.html';
+        }
       }
     });
+
+    // Initialize account on page load
+    initAccount();
   </script>
 
 </body>
+
 </html>

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,6 +8,7 @@
   <meta name="keywords" content="login, account, sign in, VitaCare">
   <title>VitaCare – Login</title>
   <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 
@@ -31,10 +33,12 @@
 
         <!-- CTA Buttons -->
         <div class="hidden md:flex items-center space-x-4">
-          <a href="cart.html" class="bg-green-600 text-white px-5 py-2 rounded-full hover:bg-green-700 hover:shadow-lg transition-all duration-300 flex items-center">
+          <a href="cart.html"
+            class="bg-green-600 text-white px-5 py-2 rounded-full hover:bg-green-700 hover:shadow-lg transition-all duration-300 flex items-center">
             <i class="fas fa-shopping-cart mr-2"></i>
             Cart
-            <span class="bg-white text-green-600 rounded-full w-5 h-5 flex items-center justify-center text-xs ml-2 font-bold">0</span>
+            <span
+              class="bg-white text-green-600 rounded-full w-5 h-5 flex items-center justify-center text-xs ml-2 font-bold">0</span>
           </a>
         </div>
 
@@ -51,7 +55,8 @@
         <a href="about.html" class="block hover:text-green-600 transition-colors py-2">About</a>
         <a href="contact.html" class="block hover:text-green-600 transition-colors py-2">Contact</a>
         <div class="pt-3 border-t">
-          <a href="cart.html" class="block text-center py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Cart</a>
+          <a href="cart.html"
+            class="block text-center py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Cart</a>
         </div>
       </div>
     </div>
@@ -72,15 +77,7 @@
             </p>
           </div>
 
-          <!-- Tab Switcher -->
-          <div class="flex gap-3 mb-8 p-1 bg-gray-100 rounded-full">
-            <button id="userTab" class="flex-1 px-6 py-3 rounded-full bg-green-600 text-white font-semibold transition-all duration-300 shadow-lg">
-              <i class="fas fa-user mr-2"></i>User Login
-            </button>
-            <button id="adminTab" class="flex-1 px-6 py-3 rounded-full text-gray-600 font-semibold hover:bg-gray-200 transition-all duration-300">
-              <i class="fas fa-user-shield mr-2"></i>Admin Login
-            </button>
-          </div>
+          <!-- Removed admin tab switcher -->
 
           <!-- Login Form -->
           <form id="loginForm" class="space-y-6">
@@ -89,13 +86,8 @@
               <label for="email" class="block text-sm font-semibold text-gray-700 mb-2">
                 <i class="fas fa-envelope text-green-600 mr-2"></i>Email Address
               </label>
-              <input 
-                id="email" 
-                type="email" 
-                required
-                placeholder="Enter your email"
-                class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
-              />
+              <input id="email" type="email" required placeholder="Enter your email"
+                class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all" />
             </div>
 
             <!-- Password Input -->
@@ -104,14 +96,10 @@
                 <i class="fas fa-lock text-green-600 mr-2"></i>Password
               </label>
               <div class="relative">
-                <input 
-                  id="password" 
-                  type="password" 
-                  required
-                  placeholder="Enter your password"
-                  class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all"
-                />
-                <button type="button" id="togglePassword" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-green-600 transition">
+                <input id="password" type="password" required placeholder="Enter your password"
+                  class="w-full border-2 border-gray-300 rounded-xl px-4 py-3 pr-12 focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-200 transition-all" />
+                <button type="button" id="togglePassword"
+                  class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-green-600 transition">
                   <i class="fas fa-eye"></i>
                 </button>
               </div>
@@ -126,44 +114,40 @@
               <a href="#" class="text-green-600 font-semibold hover:underline">Forgot Password?</a>
             </div>
 
+            <!-- Loading State -->
+            <div id="loadingMsg"
+              class="hidden p-4 bg-blue-50 border border-blue-200 text-blue-700 rounded-xl flex items-center">
+              <i class="fas fa-spinner fa-spin mr-2"></i>
+              <span>Logging you in...</span>
+            </div>
+
             <!-- Error Message -->
-            <div id="errorMsg" class="hidden p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center">
+            <div id="errorMsg"
+              class="hidden p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl flex items-center">
               <i class="fas fa-exclamation-circle mr-2"></i>
               <span id="errorText"></span>
             </div>
 
             <!-- Success Message -->
-            <div id="successMsg" class="hidden p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl flex items-center">
+            <div id="successMsg"
+              class="hidden p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl flex items-center">
               <i class="fas fa-check-circle mr-2"></i>
               <span id="successText">Login successful! Redirecting...</span>
             </div>
 
             <!-- Submit Button -->
-            <button 
-              type="submit"
-              class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-full font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center"
-            >
+            <button type="submit"
+              class="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-4 rounded-full font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-300 shadow-lg hover:shadow-xl flex items-center justify-center">
               <i class="fas fa-sign-in-alt mr-2"></i>
               Login to Account
             </button>
           </form>
 
-          <!-- Demo Credentials -->
-          <div class="mt-8 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-            <p class="text-sm font-semibold text-blue-900 mb-2">
-              <i class="fas fa-info-circle mr-2"></i>Demo Accounts:
-            </p>
-            <div class="space-y-1 text-sm text-blue-800">
-              <p><strong>User:</strong> user@vitacare.com / 123456</p>
-              <p><strong>Admin:</strong> admin@vitacare.com / admin123</p>
-            </div>
-          </div>
-
           <!-- Sign Up Link -->
           <div class="mt-6 text-center">
             <p class="text-gray-600">
-              Don't have an account? 
-              <a href="#" class="text-green-600 font-semibold hover:underline">Sign up now</a>
+              Don't have an account?
+              <a href="signup.html" class="text-green-600 font-semibold hover:underline">Sign up now</a>
             </p>
           </div>
 
@@ -179,13 +163,16 @@
             </div>
 
             <div class="mt-6 grid grid-cols-3 gap-3">
-              <button class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all">
+              <button
+                class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all">
                 <i class="fab fa-google text-red-500 text-xl"></i>
               </button>
-              <button class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all">
+              <button
+                class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all">
                 <i class="fab fa-facebook-f text-blue-600 text-xl"></i>
               </button>
-              <button class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all">
+              <button
+                class="flex items-center justify-center px-4 py-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all">
                 <i class="fab fa-apple text-gray-800 text-xl"></i>
               </button>
             </div>
@@ -234,7 +221,7 @@
             </div>
 
             <a href="products.html"
-               class="inline-flex items-center bg-white text-green-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl">
+              class="inline-flex items-center bg-white text-green-600 px-8 py-4 rounded-full font-semibold hover:bg-gray-100 transition-all shadow-lg hover:shadow-xl">
               <i class="fas fa-shopping-bag mr-2"></i>
               Start Shopping
               <i class="fas fa-arrow-right ml-2"></i>
@@ -283,6 +270,7 @@
     </div>
   </footer>
 
+  <script src="../js/utils/supabase.js"></script>
   <script>
     // Set current year
     document.getElementById("year").textContent = new Date().getFullYear();
@@ -290,33 +278,12 @@
     // Mobile menu toggle
     const menuToggle = document.getElementById('menuToggle');
     const mobileMenu = document.getElementById('mobileMenu');
-    
+
     menuToggle.addEventListener('click', () => {
       mobileMenu.classList.toggle('hidden');
       const icon = menuToggle.querySelector('i');
       icon.classList.toggle('fa-bars');
       icon.classList.toggle('fa-times');
-    });
-
-    // Tab switching
-    const userTab = document.getElementById('userTab');
-    const adminTab = document.getElementById('adminTab');
-    let isAdminMode = false;
-
-    userTab.addEventListener('click', () => {
-      isAdminMode = false;
-      userTab.classList.add('bg-green-600', 'text-white', 'shadow-lg');
-      userTab.classList.remove('text-gray-600');
-      adminTab.classList.remove('bg-green-600', 'text-white', 'shadow-lg');
-      adminTab.classList.add('text-gray-600');
-    });
-
-    adminTab.addEventListener('click', () => {
-      isAdminMode = true;
-      adminTab.classList.add('bg-green-600', 'text-white', 'shadow-lg');
-      adminTab.classList.remove('text-gray-600');
-      userTab.classList.remove('bg-green-600', 'text-white', 'shadow-lg');
-      userTab.classList.add('text-gray-600');
     });
 
     // Password toggle
@@ -336,49 +303,74 @@
     const errorMsg = document.getElementById('errorMsg');
     const errorText = document.getElementById('errorText');
     const successMsg = document.getElementById('successMsg');
+    const loadingMsg = document.getElementById('loadingMsg');
+    const submitBtn = loginForm.querySelector('button[type="submit"]');
 
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      
-      const email = document.getElementById('email').value;
+
+      const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
 
-      // Hide previous messages
-      errorMsg.classList.add('hidden');
-      successMsg.classList.add('hidden');
+      // Validate inputs
+      if (!email || !password) {
+        showError('Please fill in all fields');
+        return;
+      }
 
-      // Demo validation
-      if (isAdminMode) {
-        if (email === 'admin@vitacare.com' && password === 'admin123') {
-          showSuccess('Admin dashboard');
-        } else {
-          showError('Invalid admin credentials');
+      // Hide previous messages
+      hideMessages();
+
+      // Show loading state
+      loadingMsg.classList.remove('hidden');
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50', 'cursor-not-allowed');
+
+      try {
+        // Sign in using Supabase helper
+        const { user, session, error, profile } = await signIn(email, password);
+
+        if (error) {
+          showError(error.message || 'Invalid email or password');
+          return;
         }
-      } else {
-        if (email === 'user@vitacare.com' && password === '123456') {
-          showSuccess('home page');
-        } else {
-          showError('Invalid email or password');
+
+        if (user) {
+          // Success!
+          showSuccess();
+
+          // Redirect to dashboard after 1.5 seconds
+          setTimeout(() => {
+            window.location.href = 'dashboard.html';
+          }, 1500);
         }
+      } catch (error) {
+        console.error('Login error:', error);
+        showError('An unexpected error occurred. Please try again.');
+      } finally {
+        loadingMsg.classList.add('hidden');
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50', 'cursor-not-allowed');
       }
     });
 
+    function hideMessages() {
+      errorMsg.classList.add('hidden');
+      successMsg.classList.add('hidden');
+      loadingMsg.classList.add('hidden');
+    }
+
     function showError(message) {
+      hideMessages();
       errorText.textContent = message;
       errorMsg.classList.remove('hidden');
       errorMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    function showSuccess(destination) {
+    function showSuccess() {
+      hideMessages();
       successMsg.classList.remove('hidden');
       successMsg.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-      
-      // Simulate redirect
-      setTimeout(() => {
-        alert(`Login successful! Redirecting to ${destination}...`);
-        loginForm.reset();
-        successMsg.classList.add('hidden');
-      }, 2000);
     }
 
     // Navbar scroll effect
@@ -390,27 +382,52 @@
         navbar.classList.remove('shadow-xl');
       }
     });
+
+    // Check if already logged in
+    async function checkAuth() {
+      const authenticated = await isAuthenticated();
+      if (authenticated) {
+        window.location.href = 'dashboard.html';
+      }
+    }
+
+    checkAuth();
   </script>
 
   <style>
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
-    
+
     @keyframes slideIn {
-      from { opacity: 0; transform: translateX(30px); }
-      to { opacity: 1; transform: translateX(0); }
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
-    
+
     .animate-fadeIn {
       animation: fadeIn 0.8s ease-out;
     }
-    
+
     .animate-slideIn {
       animation: slideIn 0.8s ease-out;
     }
   </style>
 
 </body>
+
 </html>
