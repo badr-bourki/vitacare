@@ -1,411 +1,361 @@
-/**
- * Supabase Configuration and Client Setup
- * 
- * This file initializes the Supabase client and provides authentication utilities.
- * Replace SUPABASE_URL and SUPABASE_ANON_KEY with your actual Supabase project credentials.
- */
+// supabase.js - Fixed Version
+const SUPABASE_URL = "https://rcqjidncnlqowdsukjqk.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjcWppZG5jbmxxb3dkc3VranFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NzM2OTgsImV4cCI6MjA4NDI0OTY5OH0.o8ncEcOeJMr0aNb7PCfLy3jQ4F5Uz8dxVVOw48CiyxY";
 
-// Import Supabase client from CDN (loaded via script tag in HTML)
-// Make sure to include this in your HTML: <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-// Supabase project configuration
-const SUPABASE_URL = 'https://rcqjidncnlqowdsukjqk.supabase.co'; // Replace with your Supabase project URL
-const SUPABASE_ANON_KEY = 'sb_publishable_kWaC6QvF8PcAbyldQiovvg_7duu8AgR';
-
-// Initialize Supabase client
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
- * Authentication Helper Functions
- */
-
-/**
- * Sign up a new user with email and password
- * Automatically creates a profile in the profiles table
- * 
- * @param {string} email - User's email address
- * @param {string} password - User's password
- * @param {string} fullName - User's full name
- * @returns {Promise<{user, error, profile}>}
+ * Sign up user and create profile automatically
  */
 async function signUp(email, password, fullName) {
-    try {
-        // Sign up the user
-        const { data: authData, error: authError } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    full_name: fullName
-                }
-            }
-        });
-
-        if (authError) {
-            return { user: null, error: authError, profile: null };
+  try {
+    console.log('Starting signup process...');
+    
+    // إنشاء حساب المستخدم
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { 
+          full_name: fullName 
         }
+      }
+    });
 
-        // Wait a moment for the trigger to create the profile
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        // Fetch the created profile
-        const { data: profile, error: profileError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', authData.user.id)
-            .single();
-
-        if (profileError) {
-            console.warn('Profile fetch error:', profileError);
-            // Profile might not exist yet due to trigger delay, we'll fetch it on login
-        }
-
-        return {
-            user: authData.user,
-            error: null,
-            profile: profile || null
-        };
-    } catch (error) {
-        console.error('Signup error:', error);
-        return { user: null, error, profile: null };
+    if (authError) {
+      console.error('Auth error:', authError);
+      return { user: null, error: authError };
     }
+
+    if (!authData.user) {
+      return { user: null, error: { message: 'Failed to create user' } };
+    }
+
+    console.log('User created:', authData.user.id);
+
+    // انتظر قليلاً لإنشاء الملف الشخصي تلقائياً (Trigger)
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // محاولة الحصول على الملف الشخصي
+    let { data: profile, error: profileError } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', authData.user.id)
+      .single();
+
+    // إذا لم يتم إنشاء الملف الشخصي تلقائياً، أنشئه يدوياً
+    if (profileError || !profile) {
+      console.log('Creating profile manually...');
+      
+      const { data: newProfile, error: insertError } = await supabase
+        .from('profiles')
+        .insert([{
+          id: authData.user.id,
+          email: email,
+          full_name: fullName,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error('Profile creation error:', insertError);
+        return { user: authData.user, error: insertError };
+      }
+
+      profile = newProfile;
+    }
+
+    // إنشاء الدور الافتراضي
+    const { error: roleError } = await supabase
+      .from('roles')
+      .insert([{ 
+        user_id: authData.user.id, 
+        role: 'user' 
+      }]);
+
+    if (roleError) {
+      console.warn('Role creation warning:', roleError);
+    }
+
+    console.log('Signup successful!');
+    return { 
+      user: authData.user, 
+      profile,
+      error: null 
+    };
+
+  } catch (error) {
+    console.error('Unexpected signup error:', error);
+    return { 
+      user: null, 
+      error: { message: error.message || 'Signup failed' } 
+    };
+  }
 }
 
 /**
- * Sign in an existing user
- * Fetches and ensures profile exists
- * 
- * @param {string} email - User's email address
- * @param {string} password - User's password
- * @returns {Promise<{user, session, error, profile}>}
+ * Sign in user
  */
 async function signIn(email, password) {
-    try {
-        // Sign in the user
-        const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        });
+  try {
+    console.log('Starting signin process...');
+    
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({ 
+      email, 
+      password 
+    });
 
-        if (authError) {
-            return { user: null, session: null, error: authError, profile: null, role: null };
-        }
-
-        // Fetch or create profile
-        const { profile, error: profileError } = await getOrCreateProfile(authData.user);
-
-        if (profileError) {
-            console.warn('Profile error:', profileError);
-        }
-
-        // Fetch user role
-        const { role, error: roleError } = await getUserRole(authData.user.id);
-
-        if (roleError) {
-            console.warn('Role error:', roleError);
-        }
-
-        return {
-            user: authData.user,
-            session: authData.session,
-            error: null,
-            profile: profile || null,
-            role: role || 'user' // Default to 'user' if role fetch fails
-        };
-    } catch (error) {
-        console.error('Sign in error:', error);
-        return { user: null, session: null, error, profile: null, role: null };
+    if (authError) {
+      console.error('Sign in error:', authError);
+      return { 
+        user: null, 
+        error: authError 
+      };
     }
+
+    if (!authData.user) {
+      return { 
+        user: null, 
+        error: { message: 'Login failed' } 
+      };
+    }
+
+    console.log('Sign in successful:', authData.user.id);
+
+    // الحصول على الملف الشخصي
+    const { profile } = await getOrCreateProfile(authData.user);
+    
+    // الحصول على الدور
+    const { role } = await getUserRole(authData.user.id);
+
+    return {
+      user: authData.user,
+      session: authData.session,
+      profile: profile || null,
+      role: role || 'user',
+      error: null
+    };
+
+  } catch (error) {
+    console.error('Unexpected signin error:', error);
+    return { 
+      user: null, 
+      error: { message: error.message || 'Login failed' } 
+    };
+  }
 }
 
 /**
- * Get or create a profile for the authenticated user
- * Ensures profile exists, creates one if it doesn't
- * 
- * @param {object} user - The authenticated user object
- * @returns {Promise<{profile, error}>}
+ * Get or create profile
  */
 async function getOrCreateProfile(user) {
-    try {
-        // Try to fetch existing profile
-        let { data: profile, error: fetchError } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', user.id)
-            .single();
+  try {
+    // محاولة الحصول على الملف الشخصي
+    let { data: profile, error } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', user.id)
+      .single();
 
-        // If profile exists, return it
-        if (profile && !fetchError) {
-            return { profile, error: null };
-        }
-
-        // If profile doesn't exist, create it
-        if (fetchError && fetchError.code === 'PGRST116') {
-            const { data: newProfile, error: createError } = await supabase
-                .from('profiles')
-                .insert([
-                    {
-                        id: user.id,
-                        email: user.email,
-                        full_name: user.user_metadata?.full_name || '',
-                        created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString()
-                    }
-                ])
-                .select()
-                .single();
-
-            if (createError) {
-                console.error('Profile creation error:', createError);
-                return { profile: null, error: createError };
-            }
-
-            return { profile: newProfile, error: null };
-        }
-
-        // Other errors
-        return { profile: null, error: fetchError };
-    } catch (error) {
-        console.error('Get or create profile error:', error);
-        return { profile: null, error };
+    if (profile && !error) {
+      return { profile, error: null };
     }
+
+    // إذا لم يوجد الملف الشخصي، أنشئه
+    if (error && error.code === 'PGRST116') {
+      console.log('Profile not found, creating...');
+      
+      const { data: newProfile, error: createError } = await supabase
+        .from('profiles')
+        .insert([{
+          id: user.id,
+          email: user.email,
+          full_name: user.user_metadata?.full_name || user.email.split('@')[0],
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }])
+        .select()
+        .single();
+
+      if (createError) {
+        console.error('Profile creation error:', createError);
+        return { profile: null, error: createError };
+      }
+
+      return { profile: newProfile, error: null };
+    }
+
+    return { profile: null, error };
+
+  } catch (error) {
+    console.error('getOrCreateProfile error:', error);
+    return { profile: null, error };
+  }
 }
 
 /**
- * Get user role from roles table
- * 
- * @param {string} userId - User's ID
- * @returns {Promise<{role, error}>}
+ * Get user role
  */
 async function getUserRole(userId) {
-    try {
-        const { data: roleData, error } = await supabase
-            .from('roles')
-            .select('role')
-            .eq('user_id', userId)
-            .single();
+  try {
+    const { data, error } = await supabase
+      .from('roles')
+      .select('role')
+      .eq('user_id', userId)
+      .single();
 
-        if (error) {
-            // If no role found, create default 'user' role
-            if (error.code === 'PGRST116') {
-                const { data: newRole, error: createError } = await supabase
-                    .from('roles')
-                    .insert([{ user_id: userId, role: 'user' }])
-                    .select('role')
-                    .single();
+    if (error) {
+      // إنشاء الدور الافتراضي إذا لم يوجد
+      if (error.code === 'PGRST116') {
+        console.log('Role not found, creating default role...');
+        
+        const { data: newRole } = await supabase
+          .from('roles')
+          .insert([{ 
+            user_id: userId, 
+            role: 'user' 
+          }])
+          .select('role')
+          .single();
 
-                if (createError) {
-                    console.error('Role creation error:', createError);
-                    return { role: 'user', error: createError };
-                }
-
-                return { role: newRole.role, error: null };
-            }
-
-            console.error('Get role error:', error);
-            return { role: 'user', error }; // Default to 'user' on error
-        }
-
-        return { role: roleData.role, error: null };
-    } catch (error) {
-        console.error('Get user role error:', error);
-        return { role: 'user', error };
-    }
-}
-
-/**
- * Check if user has admin role
- * 
- * @param {string} userId - User's ID
- * @returns {Promise<boolean>}
- */
-async function isAdmin(userId) {
-    const { role } = await getUserRole(userId);
-    return role === 'admin';
-}
-
-/**
- * Get the current authenticated user, their profile, and role
- * 
- * @returns {Promise<{user, profile, role, error}>}
- */
-async function getCurrentUser() {
-    try {
-        // Get current session
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-        if (userError || !user) {
-            return { user: null, profile: null, role: null, error: userError };
-        }
-
-        // Fetch profile
-        const { profile, error: profileError } = await getOrCreateProfile(user);
-
-        // Fetch role
-        const { role, error: roleError } = await getUserRole(user.id);
-
-        return {
-            user,
-            profile: profile || null,
-            role: role || 'user',
-            error: profileError || roleError
+        return { 
+          role: newRole?.role || 'user', 
+          error: null 
         };
-    } catch (error) {
-        console.error('Get current user error:', error);
-        return { user: null, profile: null, role: null, error };
+      }
+      return { role: 'user', error };
     }
+
+    return { role: data.role, error: null };
+
+  } catch (error) {
+    console.error('getUserRole error:', error);
+    return { role: 'user', error };
+  }
 }
 
 /**
- * Sign out the current user
- * 
- * @returns {Promise<{error}>}
+ * Sign out
  */
 async function signOut() {
-    try {
-        const { error } = await supabase.auth.signOut();
-        return { error };
-    } catch (error) {
-        console.error('Sign out error:', error);
-        return { error };
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Sign out error:', error);
     }
+    return { error };
+  } catch (error) {
+    console.error('Unexpected sign out error:', error);
+    return { error };
+  }
+}
+
+/**
+ * Require authentication (لحماية صفحات Dashboard)
+ */
+async function requireAuth(redirectUrl = 'login.html') {
+  try {
+    // التحقق من الجلسة
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    
+    if (sessionError || !session) {
+      console.log('No session found, redirecting...');
+      window.location.href = redirectUrl;
+      return { user: null, profile: null, role: null };
+    }
+
+    // الحصول على المستخدم
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    
+    if (userError || !user) {
+      console.log('No user found, redirecting...');
+      window.location.href = redirectUrl;
+      return { user: null, profile: null, role: null };
+    }
+
+    // الحصول على الملف الشخصي والدور
+    const { profile } = await getOrCreateProfile(user);
+    const { role } = await getUserRole(user.id);
+
+    return { 
+      user, 
+      profile: profile || null, 
+      role: role || 'user' 
+    };
+
+  } catch (error) {
+    console.error('requireAuth error:', error);
+    window.location.href = redirectUrl;
+    return { user: null, profile: null, role: null };
+  }
+}
+
+/**
+ * Check authentication status
+ */
+async function isAuthenticated() {
+  try {
+    const { data: { session } } = await supabase.auth.getSession();
+    return !!session;
+  } catch (error) {
+    console.error('isAuthenticated error:', error);
+    return false;
+  }
+}
+
+/**
+ * Listen to auth state changes
+ */
+function onAuthStateChange(callback) {
+  const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    console.log('Auth state changed:', event);
+    callback(event, session);
+  });
+  return subscription;
 }
 
 /**
  * Update user profile
- * 
- * @param {string} userId - User's ID
- * @param {object} updates - Profile fields to update
- * @returns {Promise<{profile, error}>}
  */
 async function updateProfile(userId, updates) {
-    try {
-        const { data: profile, error } = await supabase
-            .from('profiles')
-            .update({
-                ...updates,
-                updated_at: new Date().toISOString()
-            })
-            .eq('id', userId)
-            .select()
-            .single();
+  try {
+    const { data, error } = await supabase
+      .from('profiles')
+      .update({
+        ...updates,
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', userId)
+      .select()
+      .single();
 
-        if (error) {
-            console.error('Profile update error:', error);
-            return { profile: null, error };
-        }
-
-        return { profile, error: null };
-    } catch (error) {
-        console.error('Update profile error:', error);
-        return { profile: null, error };
+    if (error) {
+      console.error('Update profile error:', error);
+      return { profile: null, error };
     }
+
+    return { profile: data, error: null };
+
+  } catch (error) {
+    console.error('Unexpected update profile error:', error);
+    return { profile: null, error };
+  }
 }
 
-/**
- * Fetch user profile by ID
- * 
- * @param {string} userId - User's ID
- * @returns {Promise<{profile, error}>}
- */
-async function getProfile(userId) {
-    try {
-        const { data: profile, error } = await supabase
-            .from('profiles')
-            .select('*')
-            .eq('id', userId)
-            .single();
-
-        if (error) {
-            console.error('Get profile error:', error);
-            return { profile: null, error };
-        }
-
-        return { profile, error: null };
-    } catch (error) {
-        console.error('Get profile error:', error);
-        return { profile: null, error };
-    }
-}
-
-/**
- * Require authentication - redirect to login if not authenticated
- * Use this on protected pages - checks session BEFORE rendering content
- * 
- * @param {string} redirectUrl - URL to redirect to if not authenticated (default: '/pages/login.html')
- * @returns {Promise<{user, profile, role}>}
- */
-async function requireAuth(redirectUrl = '../pages/login.html') {
-    try {
-        // First, check if there's an active session
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-
-        if (sessionError || !session) {
-            console.log('No active session found, redirecting to login');
-            window.location.href = redirectUrl;
-            return { user: null, profile: null, role: null };
-        }
-
-        // Get the current user from the session
-        const { data: { user }, error: userError } = await supabase.auth.getUser();
-
-        if (userError || !user) {
-            console.log('Failed to get user, redirecting to login');
-            window.location.href = redirectUrl;
-            return { user: null, profile: null, role: null };
-        }
-
-        // Fetch or create profile
-        const { profile, error: profileError } = await getOrCreateProfile(user);
-
-        if (profileError) {
-            console.warn('Profile error:', profileError);
-        }
-
-        // Fetch user role
-        const { role, error: roleError } = await getUserRole(user.id);
-
-        if (roleError) {
-            console.warn('Role error:', roleError);
-        }
-
-        return {
-            user,
-            profile: profile || null,
-            role: role || 'user'
-        };
-    } catch (error) {
-        console.error('Auth check error:', error);
-        window.location.href = redirectUrl;
-        return { user: null, profile: null, role: null };
-    }
-}
-
-/**
- * Check if user is authenticated by verifying active session
- * 
- * @returns {Promise<boolean>}
- */
-async function isAuthenticated() {
-    try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        return !error && !!session;
-    } catch (error) {
-        console.error('Auth check error:', error);
-        return false;
-    }
-}
-
-/**
- * Listen to authentication state changes
- * 
- * @param {function} callback - Callback function to execute on auth state change
- * @returns {object} Subscription object with unsubscribe method
- */
-function onAuthStateChange(callback) {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-        callback(event, session);
-    });
-
-    return subscription;
+// Export functions (اختياري للاستخدام مع modules)
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    supabase,
+    signUp,
+    signIn,
+    signOut,
+    requireAuth,
+    isAuthenticated,
+    onAuthStateChange,
+    updateProfile,
+    getOrCreateProfile,
+    getUserRole
+  };
 }

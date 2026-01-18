@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Supabase Connection</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border-left: 4px solid #ddd;
+            background: #f9f9f9;
+        }
+        .test-section.success {
+            border-left-color: #4CAF50;
+            background: #f1f8f4;
+        }
+        .test-section.error {
+            border-left-color: #f44336;
+            background: #fef1f0;
+        }
+        .test-section.warning {
+            border-left-color: #ff9800;
+            background: #fff8f0;
+        }
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background: #45a049;
+        }
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        .code {
+            background: #272822;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .status {
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .success-text { color: #4CAF50; }
+        .error-text { color: #f44336; }
+        .warning-text { color: #ff9800; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        label {
+            font-weight: bold;
+            display: block;
+            margin-top: 15px;
+        }
+        .alert {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+        }
+        .alert-error {
+            background: #fef1f0;
+            border: 1px solid #f44336;
+            color: #c62828;
+        }
+        .alert-success {
+            background: #f1f8f4;
+            border: 1px solid #4CAF50;
+            color: #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 Supabase Connection Test</h1>
+        
+        <!-- Library Status -->
+        <div id="libraryStatus" class="test-section">
+            <h3>📚 Library Status</h3>
+            <div id="libStatus">Checking...</div>
+        </div>
+
+        <div class="test-section">
+            <h3>Step 1: Configure Supabase</h3>
+            <label>Supabase URL:</label>
+            <input type="text" id="supabaseUrl" value="https://rcqjidncnlqowdsukjqk.supabase.co" />
+            
+            <label>Anon Key:</label>
+            <input type="text" id="supabaseKey" value="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJjcWppZG5jbmxxb3dkc3VranFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njg2NzM2OTgsImV4cCI6MjA4NDI0OTY5OH0.o8ncEcOeJMr0aNb7PCfLy3jQ4F5Uz8dxVVOw48CiyxY" />
+            
+            <button onclick="initSupabase()" id="initBtn">Initialize Connection</button>
+            <div id="initResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Step 2: Test Database Connection</h3>
+            <button onclick="testConnection()" id="testConnBtn" disabled>Test Connection</button>
+            <div id="connectionResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Step 3: Check Tables</h3>
+            <button onclick="checkTables()" id="checkTablesBtn" disabled>Check Tables</button>
+            <div id="tablesResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>Step 4: Test Signup</h3>
+            <label>Test Email:</label>
+            <input type="email" id="testEmail" placeholder="test@example.com" value="test123@example.com" />
+            
+            <label>Test Password:</label>
+            <input type="password" id="testPassword" placeholder="password123" value="password123" />
+            
+            <label>Full Name:</label>
+            <input type="text" id="testName" placeholder="Test User" value="Test User" />
+            
+            <button onclick="testSignup()" id="signupBtn" disabled>Test Signup</button>
+            <div id="signupResult"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Console Output</h3>
+            <div id="consoleOutput" class="code">Waiting for actions...</div>
+        </div>
+    </div>
+
+    <!-- Load Supabase from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+        let supabase = null;
+        const consoleOutput = document.getElementById('consoleOutput');
+        let logIndex = 0;
+
+        // Check library status immediately
+        window.addEventListener('DOMContentLoaded', function() {
+            checkLibraryStatus();
+        });
+
+        function checkLibraryStatus() {
+            const libStatus = document.getElementById('libStatus');
+            const librarySection = document.getElementById('libraryStatus');
+            
+            if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
+                libStatus.innerHTML = '<p class="success-text">✅ Supabase library loaded successfully!</p>';
+                librarySection.classList.add('success');
+                log('✅ Supabase library is available', 'success');
+                document.getElementById('initBtn').disabled = false;
+            } else {
+                libStatus.innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>❌ Supabase library NOT loaded!</strong>
+                        <p>Please check your internet connection and refresh the page.</p>
+                        <p>Or check if CDN is blocked.</p>
+                    </div>
+                `;
+                librarySection.classList.add('error');
+                log('❌ Supabase library is NOT available', 'error');
+                document.getElementById('initBtn').disabled = true;
+            }
+        }
+
+        function log(message, type = 'info') {
+            console.log(message);
+            logIndex++;
+            const color = type === 'error' ? '#f44336' : 
+                         type === 'success' ? '#4CAF50' : 
+                         type === 'warning' ? '#ff9800' : '#fff';
+            const prefix = type === 'error' ? '❌' : 
+                          type === 'success' ? '✅' : 
+                          type === 'warning' ? '⚠️' : 'ℹ️';
+            
+            if (logIndex === 1) {
+                consoleOutput.innerHTML = '';
+            }
+            
+            consoleOutput.innerHTML += `<div style="color: ${color}; margin: 5px 0;">${prefix} ${message}</div>`;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        }
+
+        function initSupabase() {
+            log('🔄 Button clicked - Starting initialization...');
+            
+            try {
+                const url = document.getElementById('supabaseUrl').value.trim();
+                const key = document.getElementById('supabaseKey').value.trim();
+                
+                log('📝 URL: ' + url);
+                log('📝 Key length: ' + key.length + ' characters');
+                
+                if (!url || !key) {
+                    throw new Error('URL and Key are required!');
+                }
+                
+                if (!window.supabase || !window.supabase.createClient) {
+                    throw new Error('Supabase library not loaded! Please refresh the page.');
+                }
+                
+                log('🔄 Creating Supabase client...');
+                
+                supabase = window.supabase.createClient(url, key);
+                
+                log('✅ Client created successfully!', 'success');
+                
+                document.getElementById('initResult').innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>✅ Supabase client created successfully!</strong>
+                        <p>You can now test the connection.</p>
+                    </div>
+                `;
+                
+                document.getElementById('testConnBtn').disabled = false;
+                document.getElementById('checkTablesBtn').disabled = false;
+                document.getElementById('signupBtn').disabled = false;
+                
+                log('✅ All test buttons enabled', 'success');
+                
+            } catch (error) {
+                log('❌ Initialization error: ' + error.message, 'error');
+                log('❌ Stack: ' + error.stack, 'error');
+                
+                document.getElementById('initResult').innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>❌ Initialization failed!</strong>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testConnection() {
+            if (!supabase) {
+                alert('Please initialize Supabase first!');
+                return;
+            }
+
+            try {
+                log('🔄 Testing connection...');
+                document.getElementById('connectionResult').innerHTML = '<p>Testing...</p>';
+                
+                const { data, error } = await supabase.auth.getSession();
+                
+                if (error) {
+                    log('❌ Connection error: ' + error.message, 'error');
+                    throw error;
+                }
+                
+                log('✅ Connection successful!', 'success');
+                log('Session status: ' + (data.session ? 'Active' : 'None'));
+                
+                document.getElementById('connectionResult').innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>✅ Connection successful!</strong>
+                        <p>Session: ${data.session ? 'Active' : 'None'}</p>
+                    </div>
+                `;
+                
+            } catch (error) {
+                log('❌ Connection test failed: ' + error.message, 'error');
+                document.getElementById('connectionResult').innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>❌ Connection failed!</strong>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function checkTables() {
+            if (!supabase) {
+                alert('Please initialize Supabase first!');
+                return;
+            }
+
+            try {
+                log('🔄 Checking tables...');
+                document.getElementById('tablesResult').innerHTML = '<p>Checking tables...</p>';
+                
+                // Check profiles table
+                log('Checking profiles table...');
+                const { error: profilesError } = await supabase
+                    .from('profiles')
+                    .select('id')
+                    .limit(1);
+                
+                // Check roles table
+                log('Checking roles table...');
+                const { error: rolesError } = await supabase
+                    .from('roles')
+                    .select('id')
+                    .limit(1);
+                
+                let result = '<div>';
+                
+                if (!profilesError) {
+                    result += '<p class="success-text">✅ profiles table exists and accessible</p>';
+                    log('✅ profiles table OK', 'success');
+                } else {
+                    result += `<p class="error-text">❌ profiles: ${profilesError.message}</p>`;
+                    log('❌ profiles error: ' + profilesError.message, 'error');
+                }
+                
+                if (!rolesError) {
+                    result += '<p class="success-text">✅ roles table exists and accessible</p>';
+                    log('✅ roles table OK', 'success');
+                } else {
+                    result += `<p class="error-text">❌ roles: ${rolesError.message}</p>`;
+                    log('❌ roles error: ' + rolesError.message, 'error');
+                }
+                
+                result += '</div>';
+                document.getElementById('tablesResult').innerHTML = result;
+                
+            } catch (error) {
+                log('❌ Table check failed: ' + error.message, 'error');
+                document.getElementById('tablesResult').innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>❌ Error checking tables!</strong>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function testSignup() {
+            if (!supabase) {
+                alert('Please initialize Supabase first!');
+                return;
+            }
+
+            try {
+                const email = document.getElementById('testEmail').value.trim();
+                const password = document.getElementById('testPassword').value;
+                const fullName = document.getElementById('testName').value.trim();
+                
+                log('🔄 Starting signup test...');
+                log('Email: ' + email);
+                log('Name: ' + fullName);
+                
+                document.getElementById('signupResult').innerHTML = '<p>Creating account...</p>';
+                
+                // Sign up
+                log('Step 1: Calling signUp...');
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email,
+                    password,
+                    options: {
+                        data: { full_name: fullName }
+                    }
+                });
+                
+                if (authError) {
+                    log('❌ Auth error: ' + authError.message, 'error');
+                    throw authError;
+                }
+                
+                if (!authData.user) {
+                    throw new Error('No user returned from signup');
+                }
+                
+                log('✅ User created: ' + authData.user.id, 'success');
+                
+                // Wait for trigger
+                log('⏳ Waiting 2 seconds for database trigger...');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Check profile
+                log('Step 2: Checking profile...');
+                let { data: profile, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', authData.user.id)
+                    .single();
+                
+                if (profileError || !profile) {
+                    log('⚠️ Profile not found, creating manually...', 'warning');
+                    
+                    const { data: newProfile, error: insertError } = await supabase
+                        .from('profiles')
+                        .insert([{
+                            id: authData.user.id,
+                            email: email,
+                            full_name: fullName,
+                            created_at: new Date().toISOString(),
+                            updated_at: new Date().toISOString()
+                        }])
+                        .select()
+                        .single();
+                    
+                    if (insertError) {
+                        log('❌ Profile creation failed: ' + insertError.message, 'error');
+                        throw insertError;
+                    }
+                    profile = newProfile;
+                }
+                
+                log('✅ Profile exists: ' + profile.full_name, 'success');
+                
+                // Create role
+                log('Step 3: Creating role...');
+                const { error: roleError } = await supabase
+                    .from('roles')
+                    .insert([{ user_id: authData.user.id, role: 'user' }]);
+                
+                if (roleError && roleError.code !== '23505') {
+                    log('⚠️ Role warning: ' + roleError.message, 'warning');
+                } else {
+                    log('✅ Role created', 'success');
+                }
+                
+                log('✅ SIGNUP TEST COMPLETED SUCCESSFULLY!', 'success');
+                
+                document.getElementById('signupResult').innerHTML = `
+                    <div class="alert alert-success">
+                        <strong>✅ Signup test successful!</strong>
+                        <p><strong>User ID:</strong> ${authData.user.id}</p>
+                        <p><strong>Email:</strong> ${authData.user.email}</p>
+                        <p><strong>Profile:</strong> ${profile.full_name}</p>
+                    </div>
+                    <p class="warning-text">⚠️ Check your email for confirmation (if email confirmation is enabled)</p>
+                `;
+                
+            } catch (error) {
+                log('❌ SIGNUP TEST FAILED: ' + error.message, 'error');
+                log('Error details: ' + JSON.stringify(error), 'error');
+                
+                document.getElementById('signupResult').innerHTML = `
+                    <div class="alert alert-error">
+                        <strong>❌ Signup test failed!</strong>
+                        <p>${error.message}</p>
+                        <p class="code" style="color: #c62828; background: #fef1f0;">${JSON.stringify(error, null, 2)}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Log page load
+        log('🚀 Test page loaded');
+    </script>
+</body>
+</html>
