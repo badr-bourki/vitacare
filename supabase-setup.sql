@@ -49,7 +49,7 @@ BEGIN
   INSERT INTO public.profiles (id, full_name, email, created_at, updated_at)
   VALUES (
     NEW.id,
-    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    COALESCE(NULLIF(NEW.raw_user_meta_data->>'full_name', ''), split_part(NEW.email, '@', 1), 'User'),
     NEW.email,
     NOW(),
     NOW()

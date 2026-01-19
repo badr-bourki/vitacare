@@ -21,6 +21,7 @@ ALTER TABLE roles ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Users can view their own role" ON roles;
 DROP POLICY IF EXISTS "Admins can view all roles" ON roles;
 DROP POLICY IF EXISTS "Admins can manage roles" ON roles;
+DROP POLICY IF EXISTS "Users can insert their own role" ON roles;
 
 -- Create RLS policies
 -- Policy: Users can view their own role
@@ -28,8 +29,21 @@ CREATE POLICY "Users can view their own role"
   ON roles FOR SELECT
   USING (auth.uid() = user_id);
 
--- Policy: Admins can view all roles (we'll implement this later)
--- For now, users can only see their own role
+-- Policy: Users can insert their own role (optional; triggers usually handle it)
+CREATE POLICY "Users can insert their own role"
+  ON roles FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
+
+-- Policy: Admins can view all roles
+CREATE POLICY "Admins can view all roles"
+  ON roles FOR SELECT
+  USING (public.is_admin(auth.uid()));
+
+-- Policy: Admins can manage roles (promote/demote)
+CREATE POLICY "Admins can manage roles"
+  ON roles FOR UPDATE
+  USING (public.is_admin(auth.uid()))
+  WITH CHECK (public.is_admin(auth.uid()));
 
 -- Drop existing function and trigger if they exist
 DROP TRIGGER IF EXISTS on_auth_user_created_role ON auth.users;
@@ -71,15 +85,25 @@ BEGIN
   
   RETURN COALESCE(v_role, 'user'); -- Default to 'user' if no role found
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 
 -- Function to check if user is admin
 CREATE OR REPLACE FUNCTION public.is_admin(p_user_id UUID)
 RETURNS BOOLEAN AS $$
 BEGIN
-  RETURN (SELECT role = 'admin' FROM public.roles WHERE user_id = p_user_id);
+  RETURN COALESCE((SELECT role = 'admin' FROM public.roles WHERE user_id = p_user_id), false);
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+
+-- ============================================
+-- Profiles: Admin Read Access
+-- ============================================
+-- If you want admins to list all users (e.g. in an admin dashboard), add this policy.
+DROP POLICY IF EXISTS "Admins can view all profiles" ON profiles;
+
+CREATE POLICY "Admins can view all profiles"
+  ON profiles FOR SELECT
+  USING (public.is_admin(auth.uid()));
 
 -- ============================================
 -- Seed Data (Optional)

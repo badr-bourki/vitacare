@@ -397,6 +397,21 @@
                 }
                 
                 log('✅ User created: ' + authData.user.id, 'success');
+
+                // If email confirmations are enabled, there may be no session yet.
+                // Avoid any RLS-protected reads/writes until the user confirms and logs in.
+                if (!authData.session) {
+                    log('ℹ️ No session returned. Email confirmation likely enabled.', 'warning');
+                    document.getElementById('signupResult').innerHTML = `
+                        <div class="alert alert-success">
+                            <strong>✅ Signup request created!</strong>
+                            <p><strong>User ID:</strong> ${authData.user.id}</p>
+                            <p><strong>Email:</strong> ${authData.user.email}</p>
+                            <p class="warning-text">⚠️ Confirm the email, then log in to create/access profile + role.</p>
+                        </div>
+                    `;
+                    return;
+                }
                 
                 // Wait for trigger
                 log('⏳ Waiting 2 seconds for database trigger...');
@@ -434,16 +449,18 @@
                 
                 log('✅ Profile exists: ' + profile.full_name, 'success');
                 
-                // Create role
-                log('Step 3: Creating role...');
-                const { error: roleError } = await supabase
+                // Role is assigned by DB trigger; read-only check.
+                log('Step 3: Checking role...');
+                const { data: roleRow, error: roleError } = await supabase
                     .from('roles')
-                    .insert([{ user_id: authData.user.id, role: 'user' }]);
-                
-                if (roleError && roleError.code !== '23505') {
-                    log('⚠️ Role warning: ' + roleError.message, 'warning');
+                    .select('role')
+                    .eq('user_id', authData.user.id)
+                    .maybeSingle();
+
+                if (roleError) {
+                    log('⚠️ Role lookup warning: ' + roleError.message, 'warning');
                 } else {
-                    log('✅ Role created', 'success');
+                    log('✅ Role: ' + (roleRow?.role || 'user'), 'success');
                 }
                 
                 log('✅ SIGNUP TEST COMPLETED SUCCESSFULLY!', 'success');
