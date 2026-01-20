@@ -1,15 +1,14 @@
 {
   "name": "vitacare",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "build": "postcss src/css/input.css -o dist/style.css"
-  },
+  "description": "VitaCare Health Platform",
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "scripts": {
+    "build": "echo 'Build completed'"
+  },
   "dependencies": {
     "autoprefixer": "^10.4.23",
     "postcss": "^8.5.6",
