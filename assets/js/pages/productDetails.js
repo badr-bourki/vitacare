@@ -123,12 +123,34 @@ function changeQty(change) {
 }
 
 function addToCart(event, id) {
-  const qty = Number(document.getElementById('quantity').value);
-  const btn = event.currentTarget;
-  btn.textContent = 'Added!';
-  btn.disabled = true;
+  const qtyInput = document.getElementById('quantity');
+  const qty = Math.max(1, Math.min(99, Number(qtyInput?.value) || 1));
+  const btn = event?.currentTarget;
+  const cartAPI = window.cartStorage;
 
-  showNotification(`${qty} × ${product.name} added to cart`);
+  if (!cartAPI) {
+    console.error('cartStorage not ready');
+    showNotification('Cart system not ready', 'error');
+    return;
+  }
+
+  const productToAdd = window.products?.find?.(p => p.id === id);
+  if (!productToAdd) {
+    showNotification('Product not found', 'error');
+    return;
+  }
+
+  cartAPI.addToCart(productToAdd, qty);
+  showNotification(`${qty} × ${productToAdd.name} added to cart`);
+
+  if (btn) {
+    btn.textContent = 'Added!';
+    btn.disabled = true;
+    setTimeout(() => {
+      btn.textContent = 'Add to Cart';
+      btn.disabled = false;
+    }, 1500);
+  }
 }
 
 function toggleWishlist(event) {
@@ -137,9 +159,15 @@ function toggleWishlist(event) {
   showNotification('Wishlist updated');
 }
 
-function showNotification(text) {
+function showNotification(text, type = 'success') {
+  const colors = {
+    success: 'bg-green-600',
+    error: 'bg-red-600',
+    info: 'bg-blue-600'
+  };
+
   const div = document.createElement('div');
-  div.className = 'fixed top-10 right-10 bg-green-600 text-white px-6 py-3 rounded-lg';
+  div.className = `fixed top-10 right-10 ${colors[type] || colors.success} text-white px-6 py-3 rounded-lg shadow-lg`;
   div.textContent = text;
   document.body.appendChild(div);
   setTimeout(() => div.remove(), 3000);

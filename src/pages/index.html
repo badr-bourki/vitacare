@@ -139,7 +139,7 @@
 
     <!-- ================= HERO SECTION ================= -->
     <section class="pt-20 min-h-screen bg-cover bg-center relative flex items-center"
-        style="background-image: url('/assets/images/ui/hero-bg.jpg');">
+        style="background-image: url('../assets/images/ui/hero-bg.jpg');">
         <!-- Overlay باهت -->
         <div class="absolute inset-0 bg-white/70"></div>
 
@@ -203,7 +203,7 @@
                 <!-- Beauty Category -->
                 <a href="products.html?category=beauty"
                     class="relative h-80 rounded-3xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition">
-                    <img src="/assets/images/categories/beauty.webp"
+                    <img src="../assets/images/categories/beauty.webp"
                         class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                         onerror="this.src='https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=500&h=600&fit=crop'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
@@ -218,7 +218,7 @@
                 <!-- Skincare Category -->
                 <a href="products.html?category=skincare"
                     class="relative h-80 rounded-3xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition">
-                    <img src="/assets/images/categories/skincare.webp"
+                    <img src="../assets/images/categories/skincare.webp"
                         class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                         onerror="this.src='https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=500&h=600&fit=crop'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
@@ -233,7 +233,7 @@
                 <!-- Wellness Category -->
                 <a href="products.html?category=wellness"
                     class="relative h-80 rounded-3xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition">
-                    <img src="/assets/images/categories/wellness.webp"
+                    <img src="../assets/images/categories/wellness.webp"
                         class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                         onerror="this.src='https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?w=500&h=600&fit=crop'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
@@ -248,7 +248,7 @@
                 <!-- Supplements Category -->
                 <a href="products.html?category=supplements"
                     class="relative h-80 rounded-3xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition">
-                    <img src="/assets/images/categories/supplements.webp"
+                    <img src="../assets/images/categories/supplements.webp"
                         class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                         onerror="this.src='https://images.unsplash.com/photo-1607619056574-7b8d3ee536b2?w=500&h=600&fit=crop'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
@@ -276,7 +276,7 @@
 
                 <!-- Quality Guaranteed -->
                 <div class="relative h-72 rounded-3xl overflow-hidden group shadow-lg hover:shadow-xl transition">
-                    <img src="/assets/images/features/quality.webp"
+                    <img src="../assets/images/features/quality.webp"
                         class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                         onerror="this.src='https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&h=500&fit=crop'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
@@ -292,7 +292,7 @@
 
                 <!-- Fast Delivery -->
                 <div class="relative h-72 rounded-3xl overflow-hidden group shadow-lg hover:shadow-xl transition">
-                    <img src="/assets/images/features/delivery.jpg"
+                    <img src="../assets/images/features/delivery.jpg"
                         class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                         onerror="this.src='https://images.unsplash.com/photo-1566576721346-d4a3b4eaeb55?w=400&h=500&fit=crop'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
@@ -308,7 +308,7 @@
 
                 <!-- 24/7 Support -->
                 <div class="relative h-72 rounded-3xl overflow-hidden group shadow-lg hover:shadow-xl transition">
-                    <img src="/assets/images/features/support.webp"
+                    <img src="../assets/images/features/support.webp"
                         class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                         onerror="this.src='https://images.unsplash.com/photo-1553775282-20af80779df7?w=400&h=500&fit=crop'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
@@ -324,7 +324,7 @@
 
                 <!-- Trusted by Customers -->
                 <div class="relative h-72 rounded-3xl overflow-hidden group shadow-lg hover:shadow-xl transition">
-                    <img src="/assets/images/features/trust.webp"
+                    <img src="../assets/images/features/trust.webp"
                         class="w-full h-full object-cover group-hover:scale-110 transition duration-500"
                         onerror="this.src='https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?w=400&h=500&fit=crop'">
                     <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
@@ -459,8 +459,96 @@
         Product added to cart!
     </div>
 
-<script src="/assets/js/utils/cartStorage.js"></script>
-<script src="/assets/js/pages/index.js"></script>
+<script>
+// Featured Products Data
+const featuredProducts = [
+    { id: 1, name: 'Vitamin C Serum', category: 'Skincare', price: 19.99, image: '../assets/images/products/p1.jpeg' },
+    { id: 2, name: 'Omega 3', category: 'Supplements', price: 14.50, image: '../assets/images/products/p2.jpeg' },
+    { id: 3, name: 'Aloe Body Lotion', category: 'Body Care', price: 11.00, image: '../assets/images/products/p3.jpeg' },
+    { id: 4, name: 'Multivitamin', category: 'Health', price: 16.75, image: '../assets/images/products/p4.jpeg' }
+];
+
+// Load Products - الآن مع روابط صحيحة ✅
+function loadFeaturedProducts() {
+    const container = document.getElementById('featuredProducts');
+    container.innerHTML = featuredProducts.map(p => `
+        <div class="border rounded-2xl overflow-hidden hover:shadow-lg transition group">
+            <!-- ✅ الصورة كلها رابط -->
+            <a href="product-details.html?id=${p.id}" class="block">
+                <img src="${p.image}" 
+                     class="w-full h-52 object-cover group-hover:scale-105 transition duration-300"
+                     onerror="this.src='https://via.placeholder.com/300x200?text=${p.name}'">
+            </a>
+            <div class="p-4">
+                <p class="text-sm text-gray-500">${p.category}</p>
+                <!-- ✅ اسم المنتج كرابط -->
+                <a href="product-details.html?id=${p.id}" class="block">
+                    <h3 class="font-semibold text-lg mt-1 hover:text-green-600 transition">${p.name}</h3>
+                </a>
+                <div class="flex justify-between items-center mt-3">
+                    <span class="font-bold text-green-600">$${p.price.toFixed(2)}</span>
+                    <button onclick="addToCart(${p.id})" 
+                            class="bg-green-600 text-white px-4 py-2 rounded-full text-sm hover:bg-green-700 transition">
+                        Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+// Cart Functions
+function getCart() {
+    return JSON.parse(localStorage.getItem('cart') || '[]');
+}
+
+function saveCart(cart) {
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCartCount();
+}
+
+function addToCart(productId) {
+    const product = featuredProducts.find(p => p.id === productId);
+    if (!product) return;
+
+    const cart = getCart();
+    const existing = cart.find(item => item.id === productId);
+
+    if (existing) {
+        existing.quantity++;
+    } else {
+        cart.push({ ...product, quantity: 1 });
+    }
+
+    saveCart(cart);
+    showToast('Product added to cart!');
+}
+
+function updateCartCount() {
+    const cart = getCart();
+    const total = cart.reduce((sum, item) => sum + item.quantity, 0);
+    document.getElementById('cartCount').textContent = total;
+}
+
+function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 3000);
+}
+
+// Mobile Menu
+document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+    document.getElementById('mobileMenu').classList.toggle('hidden');
+});
+
+// Year
+document.getElementById('year').textContent = new Date().getFullYear();
+
+// Initialize
+loadFeaturedProducts();
+updateCartCount();
+</script>
 
 </body>
 

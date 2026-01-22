@@ -31,6 +31,10 @@
     return api.client;
   };
 
+  if (window.cartStorage?.syncUserCart) {
+    window.cartStorage.syncUserCart();
+  }
+
   api.getUserRole = async function getUserRole(userId) {
     try {
       const supabaseClient = api.client;

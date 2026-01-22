@@ -1,48 +1,116 @@
 // ================== CART STORAGE SYSTEM ==================
 // نظام موحد لإدارة السلة في جميع الصفحات
 
-const CART_KEY = 'vitacare_cart';
+const CART_NAMESPACE = 'vitacare_cart';
+let activeUserId = null;
+let activeCartKey = `${CART_NAMESPACE}_guest`;
+let authBindingInitialized = false;
+let authRetryCount = 0;
 
-// ================== GET CART ==================
-function getCart() {
+function buildCartKey(userId) {
+  return `${CART_NAMESPACE}_${userId || 'guest'}`;
+}
+
+function switchCartKey(userId) {
+  const newKey = buildCartKey(userId);
+  if (newKey === activeCartKey) return;
+
+  const previousCart = readCartByKey(activeCartKey);
+  const previousKey = activeCartKey;
+  activeUserId = userId || null;
+  activeCartKey = newKey;
+
+  if (userId && previousCart.length) {
+    const userCart = readCartByKey(activeCartKey);
+    const merged = mergeCartItems(userCart, previousCart);
+    saveCartByKey(activeCartKey, merged);
+    if (previousKey.endsWith('_guest')) {
+      localStorage.removeItem(previousKey);
+    }
+  } else {
+    updateCartCount();
+  }
+}
+
+function readCartByKey(key) {
   try {
-    const cart = JSON.parse(localStorage.getItem(CART_KEY)) || [];
-    // تطبيع البيانات: تحويل quantity إلى qty
-    return cart.map(item => ({
-      id: item.id,
-      name: item.name,
-      price: Number(item.price),
-      image: item.image,
-      category: item.category || 'Product',
-      qty: item.qty || item.quantity || 1  // ✅ دعم كلا المفتاحين
-    }));
+    const raw = JSON.parse(localStorage.getItem(key)) || [];
+    return normalizeCart(raw);
   } catch (e) {
-    console.error('Error reading cart:', e);
+    console.error('Error reading cart key', key, e);
     return [];
   }
 }
 
+function saveCartByKey(key, cart) {
+  try {
+    localStorage.setItem(key, JSON.stringify(normalizeCart(cart)));
+    if (key === activeCartKey) {
+      updateCartCount();
+      window.dispatchEvent(new Event('cartUpdated'));
+    }
+  } catch (e) {
+    console.error('Error saving cart key', key, e);
+  }
+}
+
+function normalizeCart(items) {
+  return (items || []).map(item => ({
+    id: item.id,
+    name: item.name,
+    price: Number(item.price),
+    image: item.image,
+    category: item.category || 'Product',
+    qty: item.qty || item.quantity || 1
+  }));
+}
+
+function mergeCartItems(target, incoming) {
+  const map = new Map();
+  normalizeCart(target).forEach(item => map.set(item.id, { ...item }));
+  normalizeCart(incoming).forEach(item => {
+    if (map.has(item.id)) {
+      map.get(item.id).qty += item.qty;
+    } else {
+      map.set(item.id, { ...item });
+    }
+  });
+  return Array.from(map.values());
+}
+
+function ensureAuthBinding() {
+  if (authBindingInitialized) return;
+
+  const client = window.VitaCareSupabase?.getClient?.();
+  if (!client) {
+    if (authRetryCount < 5) {
+      authRetryCount += 1;
+      setTimeout(ensureAuthBinding, 500 * authRetryCount);
+    }
+    return;
+  }
+
+  authBindingInitialized = true;
+
+  client.auth.onAuthStateChange((_event, session) => {
+    switchCartKey(session?.user?.id || null);
+  });
+
+  client.auth.getSession()
+    .then(({ data }) => switchCartKey(data?.session?.user?.id || null))
+    .catch((err) => console.warn('Cart session detection failed', err));
+}
+
+ensureAuthBinding();
+
+// ================== GET CART ==================
+function getCart() {
+  return readCartByKey(activeCartKey);
+}
+
 // ================== SAVE CART ==================
 function saveCart(cart) {
-  try {
-    // تأكد أن جميع العناصر تستخدم qty
-    const normalizedCart = cart.map(item => ({
-      id: item.id,
-      name: item.name,
-      price: Number(item.price),
-      image: item.image,
-      category: item.category || 'Product',
-      qty: item.qty || item.quantity || 1
-    }));
-    
-    localStorage.setItem(CART_KEY, JSON.stringify(normalizedCart));
-    updateCartCount();
-    
-    // إرسال حدث للصفحات الأخرى
-    window.dispatchEvent(new Event('cartUpdated'));
-  } catch (e) {
-    console.error('Error saving cart:', e);
-  }
+  saveCartByKey(activeCartKey, cart);
 }
 
 // ================== ADD TO CART ==================
@@ -64,7 +132,7 @@ function addToCart(product, quantity = 1) {
   }
   
   saveCart(cart);
-  showNotification(`${product.name} added to cart!`, 'success');
+  cartToast(`${product.name} added to cart!`, 'success');
   return cart;
 }
 
@@ -124,7 +192,7 @@ function updateCartCount() {
 }
 
 // ================== NOTIFICATIONS ==================
-function showNotification(message, type = 'success') {
+function cartToast(message, type = 'success') {
   // البحث عن toast موجود أو إنشاء واحد جديد
   let toast = document.getElementById('toast');
   
@@ -166,7 +234,9 @@ window.cartStorage = {
   clearCart,
   getCartTotal,
   getCartCount,
-  updateCartCount
+  updateCartCount,
+  syncUserCart: ensureAuthBinding,
+  cartToast
 };
 
 // ================== INIT ON LOAD ==================

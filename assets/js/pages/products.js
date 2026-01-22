@@ -105,7 +105,7 @@ function renderProducts(filter = 'all', searchTerm = '', sortBy = 'default') {
               <span class="text-green-600 font-bold text-xl">$${product.price}</span>
               ${product.oldPrice ? `<span class="text-gray-400 line-through text-sm ml-2">$${product.oldPrice}</span>` : ''}
             </div>
-            <button onclick="addToCartQuick(${product.id})" 
+                <button onclick="addToCartQuick(event, ${product.id})" 
                     class="bg-green-600 text-white px-4 py-2 rounded-full text-sm hover:bg-green-700 transition-all hover:shadow-lg active:scale-95">
               <svg class="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
@@ -137,22 +137,41 @@ function generateStars(rating) {
   return stars;
 }
 
-// ✨ إضافة سريعة للسلة مع إشعار
-function addToCartQuick(id) {
-  const product = window.products.find(p => p.id === id);
-  
-  // إضافة للسلة (يمكنك استخدام cartStorage.js)
-  showNotification(`${product.name} added to cart!`, 'success');
-  
-  // تأثير بصري
-  const btn = event.target.closest('button');
-  btn.innerHTML = '<svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Added';
-  btn.classList.add('bg-green-700');
-  
-  setTimeout(() => {
+function getCartAPI() {
+  if (window.cartStorage) return window.cartStorage;
+  console.error('cartStorage not loaded');
+  showNotification('Cart system not ready', 'error');
+  return null;
+}
+
+function toggleButtonState(btn, added = false) {
+  if (!btn) return;
+  if (added) {
+    btn.innerHTML = '<svg class="w-5 h-5 inline-block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Added';
+    btn.classList.add('bg-green-700');
+    btn.disabled = true;
+  } else {
     btn.innerHTML = '<svg class="w-5 h-5 inline-block mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>Add';
     btn.classList.remove('bg-green-700');
-  }, 2000);
+    btn.disabled = false;
+  }
+}
+
+// ✨ إضافة سريعة للسلة مع إشعار
+function addToCartQuick(event, id) {
+  const btn = event?.currentTarget || event?.target?.closest('button');
+  const api = getCartAPI();
+  if (!api) return;
+
+  const product = window.products?.find?.(p => p.id === id);
+  if (!product) {
+    showNotification('Product not found', 'error');
+    return;
+  }
+
+  api.addToCart(product, 1);
+  toggleButtonState(btn, true);
+  setTimeout(() => toggleButtonState(btn, false), 2000);
 }
 
 // ✨ نظام الإشعارات
@@ -208,7 +227,7 @@ function quickView(id) {
           <p class="text-gray-600 mb-6">${product.description}</p>
           <div class="text-3xl font-bold text-green-600 mb-6">$${product.price}</div>
           <div class="flex gap-3">
-            <button onclick="addToCartQuick(${product.id}); this.closest('.fixed').remove();" 
+                <button onclick="addToCartQuick(event, ${product.id}); this.closest('.fixed').remove();" 
                     class="flex-1 bg-green-600 text-white px-6 py-3 rounded-full hover:bg-green-700 transition">
               Add to Cart
             </button>
