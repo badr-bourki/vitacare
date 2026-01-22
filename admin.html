@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VitaCare – Admin Dashboard</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/js/supabase.js"></script>
+</head>
+
+<body class="bg-gray-50 text-gray-800">
+
+  <!-- Loading Gate -->
+  <div id="loadingScreen" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+    <div class="text-center">
+      <p class="text-gray-700 font-semibold">Checking admin access...</p>
+      <p class="text-gray-500 text-sm mt-2">Please wait</p>
+    </div>
+  </div>
+
+  <div id="adminApp" class="hidden">
+
+  <!-- NAVBAR -->
+  <nav class="bg-white/90 backdrop-blur shadow-md fixed w-full z-50">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <a href="index.html" class="text-2xl font-bold text-green-600">
+        Vita<span class="text-gray-900">Care</span>
+      </a>
+
+      <ul class="hidden md:flex space-x-8 font-medium">
+        <li><a href="index.html" class="hover:text-green-600">Home</a></li>
+        <li><a href="products.html" class="hover:text-green-600">Products</a></li>
+        <li><a href="admin.html" class="text-green-600 font-semibold">Admin</a></li>
+      </ul>
+
+      <div class="flex items-center space-x-4">
+        <button id="logoutBtn" class="text-sm font-medium hover:text-green-600">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <main class="pt-28 pb-16">
+    <div class="max-w-7xl mx-auto px-6">
+
+      <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8">
+        <div>
+          <h1 class="text-3xl font-bold">Admin Dashboard</h1>
+          <p class="text-gray-600 mt-2">Manage orders placed on VitaCare.</p>
+        </div>
+
+        <div class="flex gap-3">
+          <button id="clearOrdersBtn" class="px-5 py-2 rounded-full border hover:bg-gray-50">
+            Clear All
+          </button>
+          <button id="seedBtn" class="px-5 py-2 rounded-full bg-green-600 text-white hover:bg-green-700">
+            Add Sample Orders
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+        <div class="bg-white border rounded-2xl p-6">
+          <p class="text-gray-500 text-sm">Total Orders</p>
+          <p id="statTotalOrders" class="text-2xl font-bold mt-2">0</p>
+        </div>
+        <div class="bg-white border rounded-2xl p-6">
+          <p class="text-gray-500 text-sm">Revenue</p>
+          <p id="statRevenue" class="text-2xl font-bold mt-2">$0</p>
+        </div>
+        <div class="bg-white border rounded-2xl p-6">
+          <p class="text-gray-500 text-sm">Pending</p>
+          <p id="statPending" class="text-2xl font-bold mt-2">0</p>
+        </div>
+        <div class="bg-white border rounded-2xl p-6">
+          <p class="text-gray-500 text-sm">Delivered</p>
+          <p id="statDelivered" class="text-2xl font-bold mt-2">0</p>
+        </div>
+      </div>
+
+      <!-- Orders -->
+      <section class="bg-white border rounded-2xl p-6">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <h2 class="text-xl font-semibold">Orders</h2>
+
+          <div class="flex flex-wrap gap-3">
+            <input id="searchInput" placeholder="Search by name / email / id..."
+              class="border rounded-full px-5 py-2 w-full md:w-72 focus:outline-none focus:ring-2 focus:ring-green-200" />
+
+            <select id="statusFilter"
+              class="border rounded-full px-5 py-2 focus:outline-none focus:ring-2 focus:ring-green-200">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="ordersList" class="space-y-4"></div>
+        <p id="emptyOrders" class="text-gray-600 hidden">No orders yet.</p>
+      </section>
+
+    </div>
+  </main>
+
+  </div>
+
+  <script>
+    (async function protectAdmin() {
+      const supabaseClient = window.VitaCareSupabase?.getClient?.();
+      const initError = window.VitaCareSupabase?.initError;
+
+      if (!supabaseClient || initError) {
+        console.error('❌ Supabase client not available:', initError);
+        window.location.href = 'login.html';
+        return;
+      }
+
+      try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        if (!session) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (!user) {
+          window.location.href = 'login.html';
+          return;
+        }
+
+        let role = 'user';
+        try {
+          const { data: roleRow } = await supabaseClient
+            .from('roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .maybeSingle();
+          if (roleRow?.role) role = roleRow.role;
+        } catch (e) {
+          console.warn('Role lookup failed, defaulting to user', e);
+        }
+
+        if (role !== 'admin') {
+          window.location.href = 'account.html';
+          return;
+        }
+
+        window.__VITACARE_ADMIN_READY__ = true;
+        window.dispatchEvent(new Event('vitacare:admin-ready'));
+
+        document.getElementById('logoutBtn')?.addEventListener('click', async () => {
+          await supabaseClient.auth.signOut();
+          window.location.href = 'login.html';
+        });
+
+        document.getElementById('loadingScreen').classList.add('hidden');
+        document.getElementById('adminApp').classList.remove('hidden');
+      } catch (e) {
+        console.error('Admin protection failed', e);
+        window.location.href = 'login.html';
+      }
+    })();
+  </script>
+
+  <script src="/assets/js/pages/admin.js"></script>
+</body>
+</html>
+
