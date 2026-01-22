@@ -1,0 +1,659 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VitaCare – Login & Signup</title>
+
+  <!-- Tailwind CDN (production-ready utility CSS) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Supabase JS SDK + VitaCare Supabase bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="/assets/js/supabase.js"></script>
+
+  <style>
+    /* Smooth tab underline animation */
+    .tab-active::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 100%;
+      height: 2px;
+      border-radius: 9999px;
+      background: linear-gradient(to right, #16a34a, #22c55e);
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-slate-950 flex items-center justify-center px-4">
+
+  <main class="w-full max-w-4xl mx-auto">
+    <!-- Outer Shell -->
+    <section class="bg-white/95 backdrop-blur-xl shadow-2xl rounded-3xl overflow-hidden border border-white/40">
+      <div class="grid md:grid-cols-2">
+
+        <!-- Left: Brand / Marketing Panel -->
+        <aside class="hidden md:flex flex-col justify-between bg-gradient-to-br from-emerald-600 via-emerald-500 to-emerald-700 text-emerald-50 p-8">
+          <div>
+            <div class="flex items-center gap-3 mb-8">
+              <div class="w-11 h-11 rounded-2xl bg-white/10 flex items-center justify-center shadow-lg">
+                <span class="text-2xl font-bold">V</span>
+              </div>
+              <div>
+                <p class="text-xs uppercase tracking-[0.2em] text-emerald-100">Welcome to</p>
+                <p class="text-xl font-semibold">VitaCare</p>
+              </div>
+            </div>
+
+            <h1 class="text-3xl font-bold leading-snug mb-4">
+              Health & Beauty,<br />
+              <span class="text-emerald-50/80">simplified for you.</span>
+            </h1>
+            <p class="text-emerald-100/90 text-sm leading-relaxed mb-6">
+              Create an account or sign in to manage your orders, track deliveries,
+              and enjoy a personalized wellness experience.
+            </p>
+
+            <ul class="space-y-3 text-sm">
+              <li class="flex items-start gap-2">
+                <span class="mt-0.5 text-emerald-100">✓</span>
+                <span>Secure, account-based cart & checkout experience.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="mt-0.5 text-emerald-100">✓</span>
+                <span>One account across web and mobile.</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="mt-0.5 text-emerald-100">✓</span>
+                <span>Ready for Supabase / Firebase authentication.</span>
+              </li>
+            </ul>
+          </div>
+
+          <p class="text-[11px] text-emerald-100/70 mt-8">
+            By continuing, you agree to our
+            <a href="#" class="underline underline-offset-2">Terms</a>
+            and
+            <a href="#" class="underline underline-offset-2">Privacy Policy</a>.
+          </p>
+        </aside>
+
+        <!-- Right: Auth Tabs & Forms -->
+        <section class="p-6 sm:p-8 bg-white">
+          <!-- Tabs -->
+          <header class="flex items-center justify-between mb-6">
+            <div class="flex gap-6 text-sm font-medium relative">
+              <!-- Login Tab -->
+              <button
+                type="button"
+                class="relative pb-1 text-slate-900 tab-active"
+                data-tab="login"
+                aria-controls="panel-login"
+                aria-selected="true"
+                role="tab"
+              >
+                Login
+              </button>
+
+              <!-- Signup Tab -->
+              <button
+                type="button"
+                class="relative pb-1 text-slate-500 hover:text-slate-900"
+                data-tab="signup"
+                aria-controls="panel-signup"
+                aria-selected="false"
+                role="tab"
+              >
+                Sign up
+              </button>
+            </div>
+
+            <a href="index.html" class="hidden sm:inline-flex items-center text-xs text-slate-500 hover:text-emerald-600">
+              ← Back to home
+            </a>
+          </header>
+
+          <!-- Helper text that changes with tab -->
+          <div id="auth-subtitle" class="text-xs text-slate-500 mb-6">
+            Sign in to access your account and orders.
+          </div>
+
+          <!-- Forms Container -->
+          <div class="space-y-6">
+
+            <!-- Login Panel -->
+            <section id="panel-login" data-panel="login" role="tabpanel">
+              <form id="loginForm" class="space-y-5" novalidate>
+                <!-- Email -->
+                <div>
+                  <label for="login-email" class="block text-xs font-medium text-slate-600 mb-1.5">Email</label>
+                  <input
+                    id="login-email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="you@example.com"
+                  />
+                </div>
+
+                <!-- Password -->
+                <div>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <label for="login-password" class="block text-xs font-medium text-slate-600">Password</label>
+                    <button type="button" class="text-[11px] text-emerald-600 hover:text-emerald-700" id="login-forgot">
+                      Forgot password?
+                    </button>
+                  </div>
+                  <input
+                    id="login-password"
+                    name="password"
+                    type="password"
+                    autocomplete="current-password"
+                    required
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="••••••••"
+                  />
+                </div>
+
+                <!-- Remember + CTA -->
+                <div class="flex items-center justify-between text-xs">
+                  <label class="inline-flex items-center gap-2 text-slate-600">
+                    <input
+                      type="checkbox"
+                      id="login-remember"
+                      class="h-3.5 w-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                    />
+                    <span>Remember me on this device</span>
+                  </label>
+                </div>
+
+                <!-- Error / status area -->
+                <p
+                  id="login-message"
+                  class="hidden text-xs rounded-lg border border-red-100 bg-red-50 text-red-600 px-3 py-2"
+                ></p>
+
+                <!-- Primary CTA -->
+                <button
+                  type="submit"
+                  id="login-submit"
+                  class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-emerald-600/30 hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-colors"
+                >
+                  <span>Sign in</span>
+                </button>
+
+                <p class="text-[11px] text-slate-500 text-center">
+                  Don't have an account?
+                  <button type="button" data-switch="signup" class="font-medium text-emerald-600 hover:text-emerald-700">
+                    Sign up
+                  </button>
+                </p>
+              </form>
+            </section>
+
+            <!-- Signup Panel -->
+            <section id="panel-signup" data-panel="signup" class="hidden" role="tabpanel" aria-hidden="true">
+              <form id="signupForm" class="space-y-5" novalidate>
+                <!-- Name -->
+                <div>
+                  <label for="signup-name" class="block text-xs font-medium text-slate-600 mb-1.5">Full name</label>
+                  <input
+                    id="signup-name"
+                    name="fullName"
+                    type="text"
+                    autocomplete="name"
+                    required
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="Jane Doe"
+                  />
+                </div>
+
+                <!-- Email -->
+                <div>
+                  <label for="signup-email" class="block text-xs font-medium text-slate-600 mb-1.5">Email</label>
+                  <input
+                    id="signup-email"
+                    name="email"
+                    type="email"
+                    autocomplete="email"
+                    required
+                    class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                    placeholder="you@example.com"
+                  />
+                </div>
+
+                <!-- Password -->
+                <div class="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <label for="signup-password" class="block text-xs font-medium text-slate-600 mb-1.5">Password</label>
+                    <input
+                      id="signup-password"
+                      name="password"
+                      type="password"
+                      autocomplete="new-password"
+                      required
+                      minlength="6"
+                      class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="At least 6 characters"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="signup-confirm" class="block text-xs font-medium text-slate-600 mb-1.5">Confirm password</label>
+                    <input
+                      id="signup-confirm"
+                      name="passwordConfirm"
+                      type="password"
+                      autocomplete="new-password"
+                      required
+                      class="w-full rounded-xl border border-slate-200 bg-slate-50/60 px-3.5 py-2.5 text-sm text-slate-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent"
+                      placeholder="Repeat password"
+                    />
+                  </div>
+                </div>
+
+                <!-- Terms -->
+                <div class="flex items-start gap-2 text-[11px] text-slate-500">
+                  <input
+                    type="checkbox"
+                    id="signup-terms"
+                    required
+                    class="mt-0.5 h-3.5 w-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  <label for="signup-terms">
+                    I agree to the
+                    <a href="#" class="text-emerald-600 hover:text-emerald-700">Terms</a>
+                    and
+                    <a href="#" class="text-emerald-600 hover:text-emerald-700">Privacy Policy</a>.
+                  </label>
+                </div>
+
+                <!-- Error / status area -->
+                <p
+                  id="signup-message"
+                  class="hidden text-xs rounded-lg border border-red-100 bg-red-50 text-red-600 px-3 py-2"
+                ></p>
+
+                <!-- Primary CTA -->
+                <button
+                  type="submit"
+                  id="signup-submit"
+                  class="w-full inline-flex items-center justify-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/30 hover:bg-black focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-900 focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-colors"
+                >
+                  <span>Create account</span>
+                </button>
+
+                <p class="text-[11px] text-slate-500 text-center">
+                  Already have an account?
+                  <button type="button" data-switch="login" class="font-medium text-emerald-600 hover:text-emerald-700">
+                    Sign in
+                  </button>
+                </p>
+              </form>
+            </section>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <!-- Simple JS to manage tabs and placeholder auth logic -->
+  <script>
+    // ================================
+    // Supabase client & helpers
+    // ================================
+    const supabaseClient = window.VitaCareSupabase?.getClient?.();
+    const supabaseInitError = window.VitaCareSupabase?.initError;
+
+    function mapSupabaseError(error, context) {
+      if (!error) return 'Something went wrong. Please try again.';
+
+      const message = (error.message || '').toLowerCase();
+
+      if (message.includes('invalid login') || message.includes('invalid credentials')) {
+        return 'Incorrect email or password. Please try again.';
+      }
+      if (message.includes('email not confirmed')) {
+        return 'Please confirm your email address before logging in.';
+      }
+      if (message.includes('user already registered')) {
+        return 'An account with this email already exists. Please log in instead.';
+      }
+      if (message.includes('invalid email')) {
+        return 'Please enter a valid email address.';
+      }
+      if (message.includes('password')) {
+        return 'Password must be at least 6 characters long.';
+      }
+
+      return error.message || 'Authentication failed. Please try again.';
+    }
+
+    function getRedirectPathByRole(role) {
+      if (role === 'admin') return 'admin.html';
+      return 'account.html';
+    }
+
+    function getRedirectTarget(defaultPath, role) {
+      try {
+        const url = new URL(window.location.href);
+        const fromParam = url.searchParams.get('redirect');
+        if (fromParam) return fromParam;
+      } catch (_) {
+        // ignore
+      }
+      return role ? getRedirectPathByRole(role) : defaultPath;
+    }
+
+    function getInitialTabFromLocation() {
+      const url = new URL(window.location.href);
+      const tabParam = url.searchParams.get('tab');
+      const hash = (url.hash || '').replace('#', '');
+
+      if (tabParam === 'login' || tabParam === 'signup') return tabParam;
+      if (hash === 'login' || hash === 'signup') return hash;
+      return 'login';
+    }
+
+    // Tab handling: switch visible panel + styles
+    const tabButtons = document.querySelectorAll('[data-tab]');
+    const panels = document.querySelectorAll('[data-panel]');
+    const subtitleEl = document.getElementById('auth-subtitle');
+
+    function setActiveTab(name) {
+      tabButtons.forEach((btn) => {
+        const isActive = btn.dataset.tab === name;
+        btn.classList.toggle('tab-active', isActive);
+        btn.classList.toggle('text-slate-900', isActive);
+        btn.classList.toggle('text-slate-500', !isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      panels.forEach((panel) => {
+        const isActive = panel.dataset.panel === name;
+        panel.classList.toggle('hidden', !isActive);
+        panel.setAttribute('aria-hidden', isActive ? 'false' : 'true');
+      });
+
+      // Adjust helper copy based on tab
+      if (name === 'login') {
+        subtitleEl.textContent = 'Sign in to access your account and orders.';
+      } else {
+        subtitleEl.textContent = 'Create a new account to start your VitaCare journey.';
+      }
+
+      // Update hash so external links can open a specific tab
+      try {
+        const url = new URL(window.location.href);
+        url.hash = name;
+        window.history.replaceState(null, '', url);
+      } catch (_) {
+        // ignore
+      }
+    }
+
+    tabButtons.forEach((btn) => {
+      btn.addEventListener('click', () => setActiveTab(btn.dataset.tab));
+    });
+
+    // Support small "switch" links under the forms
+    document.addEventListener('click', (event) => {
+      const target = event.target.closest('[data-switch]');
+      if (!target) return;
+      event.preventDefault();
+      setActiveTab(target.dataset.switch);
+    });
+
+    // Set initial tab based on hash/query
+    setActiveTab(getInitialTabFromLocation());
+
+    // ---------- Auth handlers (Supabase) ----------
+
+    const loginForm = document.getElementById('loginForm');
+    const loginMsg = document.getElementById('login-message');
+    const loginSubmit = document.getElementById('login-submit');
+
+    const signupForm = document.getElementById('signupForm');
+    const signupMsg = document.getElementById('signup-message');
+    const signupSubmit = document.getElementById('signup-submit');
+
+    function showMessage(el, message) {
+      if (!el) return;
+      el.textContent = message;
+      el.classList.remove('hidden');
+    }
+
+    function clearMessage(el) {
+      if (!el) return;
+      el.textContent = '';
+      el.classList.add('hidden');
+    }
+
+    // Check existing Supabase session and redirect if already logged in
+    async function checkExistingSession() {
+      if (!supabaseClient || supabaseInitError) return;
+
+      try {
+        const {
+          data: { session },
+        } = await supabaseClient.auth.getSession();
+
+        if (!session) return;
+
+        // Determine role if table exists; fallback to user
+        let role = 'user';
+        try {
+          const { data: roleRow, error: roleError } = await supabaseClient
+            .from('roles')
+            .select('role')
+            .eq('user_id', session.user.id)
+            .maybeSingle();
+
+          if (!roleError && roleRow?.role) {
+            role = roleRow.role;
+          }
+        } catch (err) {
+          console.warn('Role lookup failed, continuing as user', err);
+        }
+
+        const target = getRedirectTarget(getRedirectPathByRole(role), role);
+        showMessage(loginMsg, 'You are already logged in. Redirecting...');
+        setTimeout(() => {
+          window.location.href = target;
+        }, 900);
+      } catch (error) {
+        console.error('Error checking existing session', error);
+      }
+    }
+
+    checkExistingSession();
+
+    // Login submit handler – Supabase email/password
+    loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearMessage(loginMsg);
+
+      const email = loginForm.email.value.trim();
+      const password = loginForm.password.value;
+
+      if (!email || !email.includes('@')) {
+        showMessage(loginMsg, 'Please enter a valid email address.');
+        return;
+      }
+      if (!password || password.length < 6) {
+        showMessage(loginMsg, 'Password must be at least 6 characters.');
+        return;
+      }
+
+      loginSubmit.disabled = true;
+      loginSubmit.textContent = 'Signing in...';
+
+      try {
+        if (!supabaseClient || supabaseInitError) {
+          showMessage(loginMsg, 'Connection error. Please refresh the page.');
+          return;
+        }
+
+        // 1) Authenticate user
+        const { data: authData, error: authError } = await supabaseClient.auth.signInWithPassword({
+          email: email.toLowerCase(),
+          password,
+        });
+
+        if (authError) {
+          throw authError;
+        }
+
+        if (!authData || !authData.user) {
+          throw new Error('Login failed. Please try again.');
+        }
+
+        const user = authData.user;
+
+        // 2) Ensure profile exists (matches older implementation)
+        try {
+          const { data: profile, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .maybeSingle();
+
+          if (profileError && profileError.code === 'PGRST116') {
+            // Profile not found -> create basic profile
+            const { error: insertError } = await supabaseClient.from('profiles').insert([
+              {
+                id: user.id,
+                email: user.email,
+                full_name: user.user_metadata?.full_name || user.email?.split('@')[0] || 'VitaCare User',
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString(),
+              },
+            ]);
+
+            if (insertError) {
+              console.warn('Failed to create profile, continuing anyway', insertError);
+            }
+          }
+        } catch (profileErr) {
+          console.warn('Profile lookup/creation failed, continuing', profileErr);
+        }
+
+        // 3) Resolve role for redirect
+        let role = 'user';
+        try {
+          const { data: roleRow, error: roleError } = await supabaseClient
+            .from('roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .maybeSingle();
+
+          if (!roleError && roleRow?.role) {
+            role = roleRow.role;
+          }
+        } catch (roleErr) {
+          console.warn('Role lookup failed, defaulting to user', roleErr);
+        }
+
+        const target = getRedirectTarget(getRedirectPathByRole(role), role);
+        clearMessage(loginMsg);
+        window.location.href = target;
+      } catch (error) {
+        console.error('Login error', error);
+        showMessage(loginMsg, mapSupabaseError(error, 'login'));
+      } finally {
+        loginSubmit.disabled = false;
+        loginSubmit.textContent = 'Sign in';
+      }
+    });
+
+    // Signup submit handler – Supabase email/password
+    signupForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearMessage(signupMsg);
+
+      const fullName = signupForm.fullName.value.trim();
+      const email = signupForm.email.value.trim();
+      const password = signupForm.password.value;
+      const confirm = signupForm.passwordConfirm.value;
+      const termsAccepted = document.getElementById('signup-terms').checked;
+
+      if (!fullName) {
+        showMessage(signupMsg, 'Please enter your full name.');
+        return;
+      }
+      if (!email || !email.includes('@')) {
+        showMessage(signupMsg, 'Please enter a valid email address.');
+        return;
+      }
+      if (password.length < 6) {
+        showMessage(signupMsg, 'Password must be at least 6 characters.');
+        return;
+      }
+      if (password !== confirm) {
+        showMessage(signupMsg, 'Passwords do not match.');
+        return;
+      }
+      if (!termsAccepted) {
+        showMessage(signupMsg, 'Please accept the terms to continue.');
+        return;
+      }
+
+      signupSubmit.disabled = true;
+      signupSubmit.textContent = 'Creating account...';
+
+      try {
+        if (!supabaseClient || supabaseInitError) {
+          showMessage(signupMsg, 'Connection error. Please refresh the page.');
+          return;
+        }
+
+        // Create user account with optional profile data
+        const { data: authData, error: authError } = await supabaseClient.auth.signUp({
+          email: email.toLowerCase(),
+          password,
+          options: {
+            data: {
+              full_name: fullName,
+            },
+            emailRedirectTo: `${window.location.origin}/auth.html#login`,
+          },
+        });
+
+        if (authError) {
+          throw authError;
+        }
+
+        if (!authData || !authData.user) {
+          throw new Error('Failed to create account. Please try again.');
+        }
+
+        // If email confirmations are enabled, Supabase may not create a session
+        if (!authData.session) {
+          showMessage(
+            signupMsg,
+            'Account created! Please check your email to confirm your account, then log in.'
+          );
+          setTimeout(() => {
+            setActiveTab('login');
+          }, 1500);
+          return;
+        }
+
+        // If session exists immediately, redirect to dashboard/account
+        const target = getRedirectTarget(getRedirectPathByRole('user'), 'user');
+        clearMessage(signupMsg);
+        window.location.href = target;
+      } catch (error) {
+        console.error('Signup error', error);
+        showMessage(signupMsg, mapSupabaseError(error, 'signup'));
+      } finally {
+        signupSubmit.disabled = false;
+        signupSubmit.textContent = 'Create account';
+      }
+    });
+  </script>
+</body>
+</html>

@@ -233,10 +233,303 @@ function initAdminOrders() {
   // First render
   render();
 }
+// ----------------------
+// Products (Supabase)
+// ----------------------
+
+function initAdminProducts() {
+  const supabaseClient = window.VitaCareSupabase?.getClient?.();
+  const initError = window.VitaCareSupabase?.initError;
+
+  const listEl = document.getElementById("adminProductsList");
+  const emptyEl = document.getElementById("adminProductsEmpty");
+  const errorEl = document.getElementById("adminProductsError");
+  const addBtn = document.getElementById("adminAddProductBtn");
+
+  const modal = document.getElementById("productModal");
+  const modalTitle = document.getElementById("productModalTitle");
+  const modalClose = document.getElementById("productModalClose");
+  const form = document.getElementById("productForm");
+  const formError = document.getElementById("productFormError");
+  const saveBtn = document.getElementById("productSaveBtn");
+  const cancelBtn = document.getElementById("productCancelBtn");
+
+  if (!listEl || !emptyEl || !addBtn || !modal || !form) return;
+
+  if (!supabaseClient || initError) {
+    if (errorEl) {
+      errorEl.textContent = "Supabase client not available. Products management is disabled.";
+      errorEl.classList.remove("hidden");
+    }
+    return;
+  }
+
+  let products = [];
+  let editingId = null;
+
+  function showError(message) {
+    if (!errorEl) return;
+    errorEl.textContent = message;
+    errorEl.classList.remove("hidden");
+  }
+
+  function clearError() {
+    if (!errorEl) return;
+    errorEl.textContent = "";
+    errorEl.classList.add("hidden");
+  }
+
+  function showFormError(message) {
+    if (!formError) return;
+    formError.textContent = message;
+    formError.classList.remove("hidden");
+  }
+
+  function clearFormError() {
+    if (!formError) return;
+    formError.textContent = "";
+    formError.classList.add("hidden");
+  }
+
+  function openModal(product) {
+    clearFormError();
+    editingId = product?.id ?? null;
+    modalTitle.textContent = editingId ? "Edit product" : "Add product";
+
+    document.getElementById("productId").value = editingId || "";
+    document.getElementById("productName").value = product?.name || "";
+    document.getElementById("productDescription").value = product?.description || "";
+    document.getElementById("productPrice").value = product?.price ?? "";
+    document.getElementById("productStock").value = product?.stock ?? 0;
+    document.getElementById("productCategory").value = product?.category || "skincare";
+    document.getElementById("productImageUrl").value = product?.image_url || product?.image || "";
+
+    modal.classList.remove("hidden");
+    modal.classList.add("flex");
+  }
+
+  function closeModal() {
+    modal.classList.add("hidden");
+    modal.classList.remove("flex");
+    editingId = null;
+    clearFormError();
+    form.reset();
+  }
+
+  async function fetchProducts() {
+    clearError();
+    try {
+      const { data, error } = await supabaseClient
+        .from("products")
+        .select("id, name, description, price, stock, image_url, category, created_at")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      products = data || [];
+      renderProducts();
+    } catch (err) {
+      console.error("Failed to load products", err);
+      showError("Failed to load products from Supabase.");
+    }
+  }
+
+  function renderProducts() {
+    if (!products.length) {
+      listEl.innerHTML = "";
+      emptyEl.classList.remove("hidden");
+      return;
+    }
+
+    emptyEl.classList.add("hidden");
+
+    const rows = products
+      .map((p) => {
+        return `
+          <tr class="border-b last:border-b-0">
+            <td class="px-3 py-2 whitespace-nowrap text-xs text-gray-500">${p.id}</td>
+            <td class="px-3 py-2">
+              <div class="flex items-center gap-3">
+                <img src="${p.image_url || p.image || "/assets/images/products/p1.jpeg"}" alt="${
+          p.name || "Product"
+        }" class="h-10 w-10 rounded object-cover border" onerror="this.src='https://via.placeholder.com/80x80?text=No+Image'" />
+                <div>
+                  <p class="text-sm font-medium text-gray-900">${p.name}</p>
+                  <p class="text-xs text-gray-500">${p.category || "-"}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-700">$${Number(p.price || 0).toFixed(2)}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-sm text-gray-700">${p.stock ?? 0}</td>
+            <td class="px-3 py-2 whitespace-nowrap text-right text-xs">
+              <button
+                type="button"
+                class="mr-2 rounded-full border border-gray-200 px-3 py-1 text-gray-600 hover:bg-gray-50"
+                data-action="edit"
+                data-id="${p.id}"
+              >
+                Edit
+              </button>
+              <button
+                type="button"
+                class="rounded-full border border-red-200 px-3 py-1 text-red-600 hover:bg-red-50"
+                data-action="delete"
+                data-id="${p.id}"
+              >
+                Delete
+              </button>
+            </td>
+          </tr>
+        `;
+      })
+      .join("");
+
+    listEl.innerHTML = `
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200 text-left">
+          <thead class="bg-gray-50 text-xs font-semibold text-gray-500">
+            <tr>
+              <th class="px-3 py-2">ID</th>
+              <th class="px-3 py-2">Product</th>
+              <th class="px-3 py-2">Price</th>
+              <th class="px-3 py-2">Stock</th>
+              <th class="px-3 py-2 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100 text-sm">
+            ${rows}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  async function saveProduct(event) {
+    event.preventDefault();
+    clearFormError();
+
+    const name = document.getElementById("productName").value.trim();
+    const description = document.getElementById("productDescription").value.trim();
+    const price = Number(document.getElementById("productPrice").value);
+    const stock = Number(document.getElementById("productStock").value);
+    const category = document.getElementById("productCategory").value || "skincare";
+    const imageUrl = document.getElementById("productImageUrl").value.trim();
+
+    if (!name) {
+      showFormError("Name is required.");
+      return;
+    }
+    if (!(price >= 0)) {
+      showFormError("Price must be a valid number.");
+      return;
+    }
+    if (!(stock >= 0)) {
+      showFormError("Stock must be a non-negative number.");
+      return;
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = editingId ? "Saving..." : "Creating...";
+
+    try {
+      if (editingId) {
+        const { error } = await supabaseClient
+          .from("products")
+          .update({ name, description, price, stock, category, image_url: imageUrl || null })
+          .eq("id", editingId);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabaseClient.from("products").insert([
+          { name, description, price, stock, category, image_url: imageUrl || null },
+        ]);
+
+        if (error) throw error;
+      }
+
+      closeModal();
+      await fetchProducts();
+    } catch (err) {
+      console.error("Failed to save product", err);
+      showFormError(err.message || "Failed to save product.");
+    } finally {
+      saveBtn.disabled = false;
+      saveBtn.textContent = "Save product";
+    }
+  }
+
+  async function deleteProduct(id) {
+    if (!confirm("Delete this product?")) return;
+    clearError();
+
+    try {
+      const { error } = await supabaseClient.from("products").delete().eq("id", id);
+      if (error) throw error;
+      await fetchProducts();
+    } catch (err) {
+      console.error("Failed to delete product", err);
+      showError("Failed to delete product.");
+    }
+  }
+
+  // Events
+  addBtn.addEventListener("click", () => openModal(null));
+  modalClose?.addEventListener("click", closeModal);
+  cancelBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    closeModal();
+  });
+
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  form.addEventListener("submit", saveProduct);
+
+  listEl.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+
+    const id = btn.getAttribute("data-id");
+    const action = btn.getAttribute("data-action");
+    const product = products.find((p) => String(p.id) === String(id));
+
+    if (action === "edit" && product) {
+      openModal(product);
+    }
+    if (action === "delete" && product) {
+      deleteProduct(product.id);
+    }
+  });
+
+  // Initial load
+  fetchProducts();
+
+  // Optional: realtime updates
+  try {
+    const channel = supabaseClient
+      .channel("products-changes")
+      .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => {
+        fetchProducts();
+      })
+      .subscribe();
+
+    window.__VITACARE_PRODUCTS_CHANNEL__ = channel;
+  } catch (err) {
+    console.warn("Realtime subscription for products failed", err);
+  }
+}
 
 if (window.__VITACARE_ADMIN_READY__ === true) {
   initAdminOrders();
+  initAdminProducts();
 } else {
-  window.addEventListener('vitacare:admin-ready', initAdminOrders, { once: true });
+  window.addEventListener(
+    "vitacare:admin-ready",
+    () => {
+      initAdminOrders();
+      initAdminProducts();
+    },
+    { once: true }
+  );
 }
 

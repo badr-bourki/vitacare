@@ -34,7 +34,7 @@ function createNavbar() {
 
                 <!-- Actions -->
                 <div class="flex items-center space-x-4">
-                    <a href="login.html" class="hidden md:block text-sm font-medium text-gray-700 hover:text-green-600 transition px-4 py-2 rounded-lg hover:bg-gray-50">
+                    <a href="auth.html#login" class="hidden md:block text-sm font-medium text-gray-700 hover:text-green-600 transition px-4 py-2 rounded-lg hover:bg-gray-50">
                         Login
                     </a>
                     <a href="cart.html"
@@ -63,7 +63,7 @@ function createNavbar() {
                     <li><a href="products.html" class="block hover:text-green-600 hover:bg-green-50 transition px-3 py-2 rounded-lg">Products</a></li>
                     <li><a href="about.html" class="block hover:text-green-600 hover:bg-green-50 transition px-3 py-2 rounded-lg">About</a></li>
                     <li><a href="contact.html" class="block hover:text-green-600 hover:bg-green-50 transition px-3 py-2 rounded-lg">Contact</a></li>
-                    <li class="pt-2 border-t"><a href="login.html" class="block text-green-600 font-medium hover:bg-green-50 transition px-3 py-2 rounded-lg">Login</a></li>
+                    <li class="pt-2 border-t"><a href="auth.html#login" class="block text-green-600 font-medium hover:bg-green-50 transition px-3 py-2 rounded-lg">Login</a></li>
                 </ul>
             </div>
         </nav>

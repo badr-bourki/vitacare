@@ -103,9 +103,146 @@
         <p id="emptyOrders" class="text-gray-600 hidden">No orders yet.</p>
       </section>
 
+      <!-- Products Management -->
+      <section class="bg-white border rounded-2xl p-6 mt-10">
+        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+          <div>
+            <h2 class="text-xl font-semibold">Products</h2>
+            <p class="text-gray-600 text-sm">Manage products stored in Supabase.</p>
+          </div>
+
+          <button
+            id="adminAddProductBtn"
+            class="inline-flex items-center gap-2 rounded-full bg-green-600 px-5 py-2 text-sm font-semibold text-white hover:bg-green-700 transition-colors"
+          >
+            <span>+ Add Product</span>
+          </button>
+        </div>
+
+        <div id="adminProductsError" class="hidden mb-4 text-sm rounded-lg border border-red-100 bg-red-50 text-red-600 px-3 py-2"></div>
+
+        <div id="adminProductsList" class="overflow-x-auto text-sm"></div>
+        <p id="adminProductsEmpty" class="text-gray-600 text-sm mt-4 hidden">No products found.</p>
+      </section>
+
     </div>
   </main>
 
+  </div>
+
+  <!-- Product Modal -->
+  <div
+    id="productModal"
+    class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40 px-4"
+    aria-hidden="true"
+  >
+    <div class="w-full max-w-lg rounded-2xl bg-white shadow-2xl">
+      <div class="flex items-center justify-between border-b px-5 py-3">
+        <h3 id="productModalTitle" class="text-base font-semibold">Add product</h3>
+        <button
+          type="button"
+          id="productModalClose"
+          class="text-gray-400 hover:text-gray-600"
+        >
+          <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="productForm" class="space-y-4 px-5 py-4 text-sm">
+        <input type="hidden" id="productId" />
+
+        <div>
+          <label for="productName" class="mb-1 block text-xs font-medium text-gray-600">Name</label>
+          <input
+            id="productName"
+            type="text"
+            required
+            class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            placeholder="Vitamin C Serum"
+          />
+        </div>
+
+        <div>
+          <label for="productDescription" class="mb-1 block text-xs font-medium text-gray-600">Description</label>
+          <textarea
+            id="productDescription"
+            rows="3"
+            class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            placeholder="Short product description"
+          ></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div>
+            <label for="productPrice" class="mb-1 block text-xs font-medium text-gray-600">Price ($)</label>
+            <input
+              id="productPrice"
+              type="number"
+              min="0"
+              step="0.01"
+              required
+              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label for="productStock" class="mb-1 block text-xs font-medium text-gray-600">Stock</label>
+            <input
+              id="productStock"
+              type="number"
+              min="0"
+              step="1"
+              required
+              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+
+          <div>
+            <label for="productCategory" class="mb-1 block text-xs font-medium text-gray-600">Category</label>
+            <select
+              id="productCategory"
+              class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            >
+              <option value="skincare">Skincare</option>
+              <option value="supplements">Supplements</option>
+              <option value="bodycare">Body Care</option>
+              <option value="health">Health</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="productImageUrl" class="mb-1 block text-xs font-medium text-gray-600">Image URL</label>
+          <input
+            id="productImageUrl"
+            type="text"
+            class="w-full rounded-lg border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            placeholder="/assets/images/products/p1.jpeg or full URL"
+          />
+        </div>
+
+        <div id="productFormError" class="hidden rounded-lg border border-red-100 bg-red-50 px-3 py-2 text-xs text-red-600"></div>
+
+        <div class="flex items-center justify-end gap-3 pt-2">
+          <button
+            type="button"
+            id="productCancelBtn"
+            class="rounded-full border border-gray-200 px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            id="productSaveBtn"
+            class="rounded-full bg-green-600 px-5 py-2 text-xs font-semibold text-white hover:bg-green-700 disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            Save product
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
   <script>
@@ -115,20 +252,20 @@
 
       if (!supabaseClient || initError) {
         console.error('❌ Supabase client not available:', initError);
-        window.location.href = 'login.html';
+        window.location.href = 'auth.html?tab=login&redirect=/admin.html';
         return;
       }
 
       try {
         const { data: { session } } = await supabaseClient.auth.getSession();
         if (!session) {
-          window.location.href = 'login.html';
+          window.location.href = 'auth.html?tab=login&redirect=/admin.html';
           return;
         }
 
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (!user) {
-          window.location.href = 'login.html';
+          window.location.href = 'auth.html?tab=login&redirect=/admin.html';
           return;
         }
 
@@ -154,14 +291,14 @@
 
         document.getElementById('logoutBtn')?.addEventListener('click', async () => {
           await supabaseClient.auth.signOut();
-          window.location.href = 'login.html';
+          window.location.href = 'auth.html#login';
         });
 
         document.getElementById('loadingScreen').classList.add('hidden');
         document.getElementById('adminApp').classList.remove('hidden');
       } catch (e) {
         console.error('Admin protection failed', e);
-        window.location.href = 'login.html';
+        window.location.href = 'auth.html?tab=login&redirect=/admin.html';
       }
     })();
   </script>
